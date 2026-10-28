@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { type EstadoAccion, exito, fallo, falloValidacion, mensajeError } from "@/lib/acciones";
 import { type EstadoDenunciaPublico, consultarDenuncia } from "@/lib/data/portal";
+import { CODIGO_DENUNCIA, normalizarCodigoDenuncia } from "@/lib/domain/denuncias";
 import { Constants } from "@/lib/supabase/database.types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MENSAJE_LIMITE, permitirEnvio } from "@/lib/limite-envio";
@@ -87,21 +88,12 @@ export async function crearDenuncia(
   return exito("Recibimos tu denuncia.", { codigo });
 }
 
-/** Acepta "den-2026-12-7f3a9c21", "DEN 2026 000012 7F3A9C21", etc. y devuelve DEN-2026-000012-7F3A9C21. */
-function normalizarCodigoDenuncia(valor: string): string {
-  const limpio = valor.trim().toUpperCase().replace(/\s+/g, "-");
-  const m = limpio.match(/^DEN-*(\d{4})-*(\d{1,8})-*([0-9A-F]{8})$/);
-  return m ? `DEN-${m[1]}-${m[2].padStart(6, "0")}-${m[3]}` : limpio;
-}
-
 const esquemaConsulta = z.object({
   codigo: z
     .string()
     .transform(normalizarCodigoDenuncia)
     .pipe(
-      z
-        .string()
-        .regex(/^DEN-\d{4}-\d{6,8}-[0-9A-F]{8}$/, "Ingresá el código completo, con el formato DEN-AAAA-NNNNNN-XXXXXXXX."),
+      z.string().regex(CODIGO_DENUNCIA, "Ingresá el código completo, con el formato DEN-AAAA-NNNNNN-XXXXXXXX."),
     ),
 });
 

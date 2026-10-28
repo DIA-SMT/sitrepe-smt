@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Asistente } from "@/components/asistente/asistente";
 import { AppShell } from "@/components/layout/app-shell";
 import { filtrarNav, navGestion } from "@/components/layout/nav";
 import { requerirStaff, usuarioParaUI } from "@/lib/auth";
@@ -18,15 +19,18 @@ export default async function GestionLayout({ children }: LayoutProps<"/gestion"
     .in("nivel", ["urgente", "alerta"]);
 
   return (
-    <AppShell
-      area="gestion"
-      nav={filtrarNav(navGestion, sesion.perfil.rol)}
-      usuario={usuarioParaUI(sesion)}
-      alertas={count ?? 0}
-      alertasHref="/gestion#alertas"
-      onLogoutAction={cerrarSesion}
-    >
-      {children}
-    </AppShell>
+    <>
+      <AppShell
+        area="gestion"
+        nav={filtrarNav(navGestion, sesion.perfil.rol)}
+        usuario={usuarioParaUI(sesion)}
+        alertas={count ?? 0}
+        alertasHref="/gestion#alertas"
+        onLogoutAction={cerrarSesion}
+      >
+        {children}
+      </AppShell>
+      <Asistente ambito="gestion" />
+    </>
   );
 }

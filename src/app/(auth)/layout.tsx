@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, ClipboardList, LifeBuoy, QrCode, Stamp } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { Asistente } from "@/components/asistente/asistente";
 import { Logo } from "@/components/brand/logo";
 import { BrandGlow, BrandStripe, PetalDecor } from "@/components/brand/petal-decor";
 import { APP } from "@/lib/config";
@@ -149,6 +150,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           </div>
         </div>
       </main>
+      <Asistente ambito="portal" />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Asistente } from "@/components/asistente/asistente";
 import { AppShell } from "@/components/layout/app-shell";
 import { filtrarNav, navPrestador } from "@/components/layout/nav";
 import { ROLES_EMPRESA, requerirRol, usuarioParaUI } from "@/lib/auth";
@@ -26,15 +27,18 @@ export default async function PrestadorLayout({ children }: LayoutProps<"/presta
   }
 
   return (
-    <AppShell
-      area="prestador"
-      nav={filtrarNav(navPrestador, sesion.perfil.rol)}
-      usuario={usuarioParaUI(sesion)}
-      alertas={alertas}
-      alertasHref="/prestador/avisos"
-      onLogoutAction={cerrarSesion}
-    >
-      {children}
-    </AppShell>
+    <>
+      <AppShell
+        area="prestador"
+        nav={filtrarNav(navPrestador, sesion.perfil.rol)}
+        usuario={usuarioParaUI(sesion)}
+        alertas={alertas}
+        alertasHref="/prestador/avisos"
+        onLogoutAction={cerrarSesion}
+      >
+        {children}
+      </AppShell>
+      <Asistente ambito="prestador" />
+    </>
   );
 }

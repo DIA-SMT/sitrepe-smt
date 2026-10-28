@@ -27,6 +27,7 @@ Empresa declara servicios (24–48 h antes) → asesor técnico firma → Contro
 | Fiscalización | Hoja de ruta (vencidos y no presentados), agenda para muestreo, inspecciones, notificaciones con plazos hábiles, actas | Arts. 2.º y 10.º · Ord. 2004/92 |
 | Reportes | Planilla mensual por empresa, informe mensual de recaudación a Ingresos Municipales, estadísticas | Art. 10.º c |
 | Administración | Aranceles parametrizables, Anexo de rubros, usuarios y roles, auditoría | — |
+| Asistente Migue | Chat con IA en la esquina inferior derecha para vecinos, empresas y personal: guía de trámites y consultas en vivo (empresas, certificados, denuncias, aranceles, pendientes) | — |
 
 ## Tecnología
 
@@ -70,7 +71,10 @@ Empresa declara servicios (24–48 h antes) → asesor técnico firma → Contro
 4. **Configurar Auth** en Supabase: Authentication → URL Configuration → *Site URL* con la URL de la app y
    `…/auth/confirmar` en *Redirect URLs*.
 
-5. **Levantar la app**
+5. **Asistente Migue** (opcional): completar `OPENROUTER_API_KEY` con una clave de
+   [OpenRouter](https://openrouter.ai/keys). Sin clave, el chat no aparece. El modelo se cambia con `OPENROUTER_MODEL`.
+
+6. **Levantar la app**
 
    ```bash
    npm run dev

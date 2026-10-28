@@ -11,6 +11,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 const LIMITES = {
   denuncia: { porOrigen: 5, global: 120, minutos: 60 },
   inscripcion_capacitacion: { porOrigen: 10, global: 300, minutos: 60 },
+  // Cada mensaje al asistente consume créditos de OpenRouter.
+  asistente: { porOrigen: 40, global: 1500, minutos: 60 },
 } as const;
 
 export type AccionLimitada = keyof typeof LIMITES;

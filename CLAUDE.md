@@ -77,6 +77,11 @@ variables, funciones y archivos en español (como el resto del código). Fechas 
   `Table` dentro de `SectionCard flush`. Componentes propios de un módulo en una carpeta `_components/` de su ruta.
   Diseño institucional (azul #0066FF, celeste #2EB1FF, sol #F4DC00, noche #020626; Poppins/Inter) pero moderno:
   nada de pantallas grises y aburridas. Mobile first (los inspectores usan el celular en la calle).
+- **Asistente Migue** (chat flotante, `<Asistente ambito>` en los layouts de portal, auth, gestión y prestador):
+  `src/app/api/asistente/route.ts` (OpenRouter con streaming NDJSON, límite `asistente` de `permitirEnvio()`),
+  instrucciones en `src/lib/asistente/conocimiento.ts` y herramientas de solo lectura en
+  `src/lib/asistente/herramientas.ts` (corren con la sesión del usuario: la RLS decide qué ve). Si se agrega una
+  pantalla o cambia un circuito, actualizar la guía y `DESCRIPCION_RUTA` en `conocimiento.ts`.
 - Sin `any`. Sin dependencias nuevas sin necesidad. No usar `localStorage` para datos.
 
 ## Comandos

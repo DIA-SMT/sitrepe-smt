@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Asistente } from "@/components/asistente/asistente";
 import { PortalFooter } from "@/components/layout/portal-footer";
 import { PortalHeader } from "@/components/layout/portal-header";
 import { APP } from "@/lib/config";
@@ -45,6 +46,7 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
         {children}
       </main>
       <PortalFooter />
+      <Asistente ambito="portal" />
     </div>
   );
 }
