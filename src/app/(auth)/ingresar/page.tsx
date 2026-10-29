@@ -5,7 +5,9 @@ import { Alert } from "@/components/ui/alert";
 import { rutaInternaSegura } from "@/lib/acciones";
 import { getSesion, inicioPorRol } from "@/lib/auth";
 import { APP } from "@/lib/config";
+import { CUENTAS_DEMO, accesoDemoHabilitado } from "@/lib/demo";
 import { EncabezadoAuth } from "../_components/encabezado-auth";
+import { AccesoDemo } from "./_components/acceso-demo";
 import { FormIngreso } from "./_components/form-ingreso";
 
 export const metadata: Metadata = {
@@ -58,6 +60,8 @@ export default async function IngresarPage({ searchParams }: IngresarPageProps) 
           Ingresá para continuar a la página que estabas buscando.
         </Alert>
       ) : null}
+
+      {accesoDemoHabilitado() ? <AccesoDemo cuentas={CUENTAS_DEMO} /> : null}
 
       <FormIngreso siguiente={siguiente} />
     </>

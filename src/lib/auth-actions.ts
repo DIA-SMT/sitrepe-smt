@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { APP } from "@/lib/config";
 import { type EstadoAccion, exito, fallo, falloValidacion, mensajeError, rutaInternaSegura } from "@/lib/acciones";
 import { getSesion, inicioPorRol } from "@/lib/auth";
+import { CUENTAS_DEMO, accesoDemoHabilitado } from "@/lib/demo";
 
 const esquemaIngreso = z.object({
   email: z.email("Ingresá un correo válido."),
@@ -31,6 +32,29 @@ export async function iniciarSesion(_prev: EstadoAccion, formData: FormData): Pr
   }
   const siguiente = datos.data.siguiente;
   redirect(rutaInternaSegura(siguiente) ?? inicioPorRol(sesion.perfil.rol));
+}
+
+/** Ingreso con una cuenta de demostración por rol (solo si el acceso rápido está activado; ver src/lib/demo.ts). */
+export async function ingresarComoDemo(_prev: EstadoAccion, formData: FormData): Promise<EstadoAccion> {
+  if (!accesoDemoHabilitado()) return fallo("El acceso de demostración no está habilitado.");
+  const cuenta = CUENTAS_DEMO.find((c) => c.rol === formData.get("rol"));
+  if (!cuenta) return fallo("Elegí un tipo de usuario.");
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithPassword({
+    email: cuenta.email,
+    password: process.env.USUARIOS_DEMO_CLAVE ?? "",
+  });
+  if (error) {
+    return fallo("No se pudo ingresar con la cuenta de demostración. Revisá que exista (npm run usuarios:demo).");
+  }
+
+  const sesion = await getSesion();
+  if (!sesion) {
+    await supabase.auth.signOut();
+    return fallo("La cuenta de demostración no está habilitada en la plataforma.");
+  }
+  redirect(inicioPorRol(sesion.perfil.rol));
 }
 
 const esquemaRegistro = z
