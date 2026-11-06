@@ -182,3 +182,63 @@ from (values
       'El listado publicado le asigna la Res. 070/DSA/2026, ya asignada a SANI-TEC (N.º 33): regularizar el número de resolución.')
 ) as t (n, nombre, cuit, shn, dsa, tanques, obs)
 on conflict (cuit) do nothing;
+
+-- Titular, domicilio y teléfono del listado oficial publicado (PDF "Listado_empresas_habilitadas-17-07-2026").
+-- El listado informa un solo domicilio: se carga como oficina; el depósito lo declara cada empresa en su legajo.
+-- Solo completa datos vacíos, para no pisar correcciones posteriores.
+update public.empresas e set
+  titular = coalesce(e.titular, v.titular),
+  domicilio_oficina = coalesce(e.domicilio_oficina, v.domicilio),
+  telefono = coalesce(e.telefono, v.telefono)
+from (values
+  ('30-71696829-0', 'ALEF GROUP SAS', 'Lamadrid 2618', '381 658-4822'),
+  ('27-25212300-3', 'FIGUEROA MARIA ISOLINA', 'Pasaje Iramain 2171', '381 644-8179'),
+  ('20-31127262-5', 'DEL PERO GUILLERMO', 'Castelli 449', '381 527-6896'),
+  ('20-13847259-1', 'ANABIA CARLOS EDUARDO', 'San Juan 449, 1° piso, dpto. D', '381 587-2176'),
+  ('20-21334873-7', 'CENTURION JULIO', 'Manuel Alberti 710', '381 680-5337'),
+  ('20-22557495-3', 'CORREA LUIS ALBERTO', 'Libertad 426', '381 690-3543'),
+  ('27-04557947-1', 'PAULA QUINTEROS', 'Entre Ríos 915', '381 468-0551'),
+  ('20-21332994-5', 'WALTER ANTONIO DIAZ', 'B° El Salvador II, Mza. 27 B, lote 27', '381 663-6950'),
+  ('27-28221171-3', 'MARIA A. BURGOS', 'Pasaje Baclini 305', '381 612-0565'),
+  ('27-32349858-5', 'SANTUCHO LORENA VALERIA', 'Torres Posse 2146', '381 623-2262'),
+  ('20-34327238-4', 'ACOSTA BRAVO DANIEL', 'Coronel Murga 825', '381 412-9469'),
+  ('20-13848998-2', 'CORBALAN MAXIMO', 'Álvarez Condarco 123', '381 654-3152'),
+  ('27-27886416-8', 'RODRIGUEZ GRISELDA VALERIA', 'Eugenio Méndez 561', '381 472-8709'),
+  ('20-20685446-5', 'FERNANDEZ GUILLERMO', 'Suipacha 551', '381 679-1606 / 381 440-1153'),
+  ('30-71065007-8', 'FABIANA ROBLES', 'Don Bosco 2025', '381 507-8174'),
+  ('20-22428816-7', 'CASTILLO ELIO DANTE', 'Adolfo de la Vega 536', '381 588-7980'),
+  ('20-39728948-7', 'TORRES ELISEO ESTEBAN', 'Isabel la Católica 3298', '381 529-7396'),
+  ('20-13803210-9', 'LESCANO CARLOS IGNACIO', 'Italia 251', '381 506-4530'),
+  ('20-23015702-3', 'CUELLO MARCOS ESTEBAN', 'Godoy Cruz 754', '381 593-1431'),
+  ('20-20179065-5', 'LUNA FERNANDO BERNABE', 'Av. Belgrano 2016', '381 501-1743'),
+  ('30-70835695-2', 'SOCIEDAD DE INTEGRACION DE SERVICIOS AMBIENTALES S.A', 'Delfín Gallo 2544', '381 330-2614'),
+  ('20-13628295-7', 'RICARDO DANIEL VALDECANTOS', 'Pasaje 27 de Febrero 1888', '381 666-4125'),
+  ('20-14023676-5', 'GUSTAVO DIAZ OJEDA', 'Esteban Echeverría 390', '381 593-6985'),
+  ('20-22263649-4', 'RODRIGUEZ MILLARES', 'Av. Las Américas 1173', '381 681-1179'),
+  ('27-12508223-3', 'RUIZ GRACIELA IVONE', 'Eugenio Méndez 330', '381 510-7072'),
+  ('20-17458633-1', 'ING. JOSE ROMANO', 'Gral. Paz 1288', '381 687-1915'),
+  ('20-12869851-6', 'PAZ RODOLFO AUGUSTO', 'Suipacha 168', '381 629-1645'),
+  ('20-22263284-7', 'MARTÍNEZ, JAVIER ATILIO', 'Chile 539', '381 331-4777'),
+  ('20-26013924-0', 'LETONA OLIVARES DIEGO OMAR', 'José Malabia 720', '381 690-1305'),
+  ('27-20759088-1', 'SANDRA NANCY PEREYRA', 'Pasaje Ituzaingó 977', '381 412-3443'),
+  ('20-27206077-1', 'CASADO RICARDO ALFREDO', 'Manuel Alberti 980', '381 454-5372'),
+  ('20-17613962-6', 'RAUL HUMBERTO CONSONNI', 'José Colombres 1278', '381 594-5318'),
+  ('20-24803771-8', 'MERCHED FALUM ELIAS', '9 de Julio 1780, lote 8', '381 449-7236'),
+  ('20-21122084-9', 'PEDRAZA MARIO OSCAR', 'B° ATE, Mza. 13, lote 17', '381 456-5338'),
+  ('20-13475369-3', 'PEDRO ORLANDO SOSA', 'Larrea 2448', '381 415-1729'),
+  ('23-17494551-9', 'SERGIO DANIEL MORENO', 'Av. Jujuy 2455', '381 681-9673'),
+  ('30-71863109-9', 'SERVIKON S.A.S. (GUSTAVO CUELLAR)', 'República del Líbano 1056', '381 563-3201'),
+  ('20-35195403-6', 'LEONE FABRICIO MARIO', 'Congreso 4982, lote 2, Mza. L, B° 360 Viviendas', '381 570-2710'),
+  ('23-29003902-9', 'SANTUCHO GUSTAVO DANIEL', 'Olleros 4195', '381 569-4196'),
+  ('20-14225100-1', 'RODRIGUEZ JOSE', 'Delfín Gallo 292', '381 572-8809'),
+  ('20-07838672-0', 'ROLDAN JOSE HORACIO', 'Italia 622', '381 447-5038'),
+  ('20-21744148-0', 'AVILA ENRIQUE OSCAR', 'San Martín 3572', '381 504-2740'),
+  ('27-26425287-9', 'FLORES ANA MARIA', 'Las Piedras 168, planta baja, local 2', '381 536-3853'),
+  ('27-22538073-8', 'ADRIANA DEL VALLE PEREZ', 'La Plata 257, piso 1, dpto. A', '381 222-6839'),
+  ('20-20692412-9', 'HERRERA FABIO FEDERICO', 'Alsina 3080', '381 458-4054'),
+  ('20-25734623-5', 'PALACIOS SANTIAGO', 'Frías Silva 1803', '381 545-7417'),
+  ('30-69714957-7', 'KONRAD ERNST', 'Jujuy 552', '381 537-8348'),
+  ('20-32018749-5', 'RODRIGUEZ DANIEL ANTONIO FABIO', 'B° 130 Viviendas, Mza. 5, casa 3', '381 509-8412 / 381 355-5857'),
+  ('20-45962835-6', 'FERRARO, FABRICIO DANIEL', 'Bernabé Aráoz 3502, lote 12, Mza. 0', '381 662-3729')
+) as v (cuit, titular, domicilio, telefono)
+where e.cuit = v.cuit;

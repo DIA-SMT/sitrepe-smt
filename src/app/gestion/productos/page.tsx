@@ -26,6 +26,7 @@ import { AccionesMemoria } from "../_components/acciones-revision";
 import { rutaLegajo } from "../_components/rutas";
 import { Segmentos } from "../_components/segmentos";
 import { BadgeToxicidad } from "../_components/toxicidad";
+import { EnlaceAnmat } from "@/components/shared/enlace-anmat";
 import { DialogoProducto } from "./_components/dialogo-producto";
 
 export const metadata: Metadata = {
@@ -68,6 +69,8 @@ export default async function ProductosPage({ searchParams }: Props) {
           ]}
         />
       </PageHeader>
+
+      <EnlaceAnmat className="mb-6" />
 
       {vista === "memorias" ? (
         <MemoriasPendientes puedeEditar={puedeEditar} />

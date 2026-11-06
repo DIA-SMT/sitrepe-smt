@@ -335,8 +335,8 @@ function CuerpoFormulario({ servicio, onListo }: { servicio?: ServicioEditable; 
         ) : null}
         {servicio?.firmado ? (
           <Alert tone="info" title="Este certificado ya está firmado">
-            Si cambiás el N.º, el cliente, el domicilio, el rubro, la superficie o capacidad, la fecha o el asesor, la firma se
-            anula y el asesor técnico tiene que volver a firmarlo. Si cambiás los productos, avisale para que los revise.
+            Si cambiás el N.º, el cliente, el domicilio, el rubro, la superficie o capacidad, la fecha, el asesor o los
+            productos, la firma se anula y el asesor técnico tiene que volver a firmarlo.
           </Alert>
         ) : null}
         {faltaTecnico || faltanProductos ? (

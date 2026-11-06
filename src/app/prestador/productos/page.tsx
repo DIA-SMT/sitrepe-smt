@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { CircleX, FlaskConical, Hourglass, ShieldCheck } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
+import { EnlaceAnmat } from "@/components/shared/enlace-anmat";
 import { PageHeader } from "@/components/shared/page-header";
 import { SectionCard } from "@/components/shared/section-card";
 import { StatCard } from "@/components/shared/stat-card";
@@ -97,6 +98,8 @@ export default async function ProductosPage() {
         Al cargar un certificado solo vas a poder elegir los productos aprobados acá; la memoria se actualiza ante cada
         cambio de técnico o de productos.
       </Alert>
+
+      <EnlaceAnmat className="mb-6" />
 
       {memoria.length === 0 ? (
         <EmptyState

@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
+import { EnlaceAnmat } from "@/components/shared/enlace-anmat";
 import { SectionCard } from "@/components/shared/section-card";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -476,6 +477,7 @@ export default async function NormativaPage() {
                 );
               })}
             </ol>
+            <EnlaceAnmat className="mt-6" />
           </section>
 
           {/* Aranceles */}

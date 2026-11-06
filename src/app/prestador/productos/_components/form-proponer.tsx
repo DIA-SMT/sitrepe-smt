@@ -23,6 +23,7 @@ import { CLASE_PRODUCTO, ESTADO_MEMORIA, ORGANISMO } from "@/lib/domain/etiqueta
 import type { Enums } from "@/lib/supabase/database.types";
 import { cn } from "@/lib/utils";
 import { ErrorCampo } from "../../legajo/_components/error-campo";
+import { EnlaceAnmat } from "@/components/shared/enlace-anmat";
 import { useEnvio } from "../../legajo/_components/use-envio";
 import { proponerProducto } from "../actions";
 import { etiquetaToxicidad, textoReingreso } from "../_lib/toxicidad";
@@ -104,7 +105,8 @@ export function FormProponer({ catalogo, enMemoria, bloqueado, variante = "prima
             <DialogTitle>Proponer producto para la memoria técnica</DialogTitle>
             <DialogDescription>
               Buscá el producto en el catálogo de productos domisanitarios registrados (ANMAT o SENASA) e indicá cómo
-              lo vas a aplicar. Se presenta un trámite de alta de producto.
+              lo vas a aplicar. Se presenta un trámite de alta de producto. Si tenés dudas sobre un registro,{" "}
+              <EnlaceAnmat compacto />.
             </DialogDescription>
           </DialogHeader>
           <DialogBody className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">

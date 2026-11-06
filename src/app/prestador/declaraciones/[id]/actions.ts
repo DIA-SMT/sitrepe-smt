@@ -332,15 +332,13 @@ export async function guardarServicio(_prev: EstadoAccion, formData: FormData): 
 
   revalidarPlanilla(declaracion.id);
   const estabaFirmado = existente.data?.firma_hash != null;
-  const firmaAnulada = estabaFirmado && actualizado.firma_hash === null;
-  // La huella de la firma no incluye los productos (la base no la anula si cambian): se avisa para que el asesor los revise.
-  const productosSinRevisar = estabaFirmado && !firmaAnulada && productosCambiaron;
+  // La firma se anula si cambian los datos firmados o los productos (trigger certificado_productos_invalidar_firma,
+  // que corre al reemplazar los productos, después de leer `actualizado`).
+  const firmaAnulada = estabaFirmado && (actualizado.firma_hash === null || productosCambiaron);
   return exito(
     firmaAnulada
       ? `Actualizaste el certificado N.º ${d.numero}. Como cambiaron sus datos, el asesor técnico tiene que volver a firmarlo.`
-      : productosSinRevisar
-        ? `Actualizaste el certificado N.º ${d.numero}. Cambiaron los productos de un certificado ya firmado: avisale al asesor técnico para que los revise.`
-        : `Actualizaste el certificado N.º ${d.numero}.`,
+      : `Actualizaste el certificado N.º ${d.numero}.`,
     { id: actualizado.id },
   );
 }

@@ -12,6 +12,11 @@ export const APP = {
     domicilio: "San Martín N.º 1009, San Miguel de Tucumán",
     horario: "Lunes a viernes de 8:00 a 13:00",
   },
+  enlaces: {
+    /** Listado oficial de ANMAT: desinfestantes y plaguicidas de venta profesional. */
+    anmatProductos:
+      "https://www.argentina.gob.ar/anmat/regulados/productos-de-uso-domestico/productos-desinfestantes-plaguicidas-insecticidas-0",
+  },
   zonaHoraria: "America/Argentina/Tucuman",
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
 } as const;
