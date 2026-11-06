@@ -1,6 +1,7 @@
 import {
   BadgeCheck,
   BellRing,
+  CirclePlay,
   Building2,
   ChartColumn,
   ClipboardCheck,
@@ -69,6 +70,7 @@ export const navPrestador: NavSection[] = [
       { label: "Legajo y técnicos", href: "/prestador/legajo", icon: IdCard },
       { label: "Trámites", href: "/prestador/tramites", icon: ScrollText },
       { label: "Avisos", href: "/prestador/avisos", icon: Megaphone },
+      { label: "Ayuda y tutoriales", href: "/prestador/ayuda", icon: CirclePlay },
     ],
   },
 ];
@@ -117,6 +119,10 @@ export const navGestion: NavSection[] = [
     ],
   },
   {
+    title: "Ayuda",
+    items: [{ label: "Ayuda y tutoriales", href: "/gestion/ayuda", icon: CirclePlay }],
+  },
+  {
     title: "Administración",
     roles: ["admin"],
     items: [
@@ -136,6 +142,7 @@ export const navPortal: NavItem[] = [
   { label: "Noticias", href: "/noticias", icon: Newspaper },
   { label: "Capacitaciones", href: "/capacitaciones", icon: GraduationCap },
   { label: "Denuncias", href: "/denuncias", icon: MessageSquareWarning },
+  { label: "Tutoriales", href: "/ayuda", icon: CirclePlay },
 ];
 
 /** Filtra secciones e ítems según el rol; descarta secciones vacías. */

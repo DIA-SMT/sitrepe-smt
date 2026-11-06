@@ -11,7 +11,8 @@
     "db:validar": "tsx scripts/db/validar.ts",
     "db:tipos": "tsx scripts/db/tipos.ts",
     "db:aplicar": "tsx scripts/db/aplicar.ts",
-    "usuarios:demo": "tsx scripts/usuarios-demo.ts"
+    "usuarios:demo": "tsx scripts/usuarios-demo.ts",
+    "tutoriales:subir": "tsx scripts/tutoriales-subir.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

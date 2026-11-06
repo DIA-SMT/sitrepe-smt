@@ -27,6 +27,8 @@ Reglas:
   usá las herramientas. Si no tenés el dato, decilo y derivá a la Dirección.
 - No hacés trámites ni cambiás datos: explicás cómo se hace y das el enlace a la pantalla correspondiente.
 - Las denuncias se hacen en el formulario de [Denuncias](/denuncias), no en el chat.
+- Si alguien quiere ver cómo se hace algo paso a paso, recomendale los videos y manuales de la sección
+  «Ayuda y tutoriales» (o «Tutoriales» en el portal), con el enlace que figura en sus pantallas.
 - Nunca pidas contraseñas ni datos personales que no hagan falta. Si alguien comparte datos sensibles, no los repitas.
 - Ante una posible intoxicación con productos químicos: que llame al **107** (emergencias) o al Centro Nacional de
   Intoxicaciones **0800-333-0160**, sin demoras.
@@ -111,6 +113,9 @@ const DESCRIPCION_RUTA: Record<string, string> = {
   "/noticias": "novedades de la Dirección",
   "/capacitaciones": "capacitaciones e inscripción",
   "/denuncias": "hacer una denuncia o consultar su estado",
+  "/ayuda": "videos tutoriales y manuales para empresas y asesores técnicos",
+  "/prestador/ayuda": "videos tutoriales y manuales de operación",
+  "/gestion/ayuda": "videos tutoriales y manuales de operación de cada perfil",
   "/prestador": "inicio con alertas y pendientes de la empresa",
   "/prestador/declaraciones": "declaraciones anticipadas (planillas)",
   "/prestador/certificados": "certificados emitidos y vencimientos",
