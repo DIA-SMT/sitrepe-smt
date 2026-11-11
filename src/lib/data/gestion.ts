@@ -73,6 +73,7 @@ export type NivelAlerta = (typeof NIVELES_ALERTA)[number];
 export type TipoAlerta =
   | "habilitacion_por_vencer"
   | "documento_por_vencer"
+  | "matricula_asesor"
   | "pago_a_verificar"
   | "declaracion_a_controlar"
   | "declaracion_observada"
@@ -98,6 +99,8 @@ export function hrefAlerta(tipo: string | null, empresaId: string | null, refere
       return empresaId ? `/gestion/empresas/${empresaId}` : null;
     case "documento_por_vencer":
       return empresaId ? `/gestion/empresas/${empresaId}?tab=documentos` : null;
+    case "matricula_asesor":
+      return empresaId ? `/gestion/empresas/${empresaId}?tab=tecnicos` : null;
     case "pago_a_verificar":
       return referenciaId ? `/gestion/pagos/${referenciaId}` : null;
     case "declaracion_a_controlar":

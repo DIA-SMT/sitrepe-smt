@@ -480,5 +480,22 @@ select c.id, 'Participante demo ' || g, (30000000 + g * 1117)::text, 'participan
 from public.capacitaciones c, generate_series(1, 12) g
 where c.estado = 'finalizada';
 
+-- Constancias de matrícula de los asesores (pagos mensuales: vigencias cortas; algunas vencidas o por vencer).
+-- El asesor de la empresa N.º 1 (cuentas de demostración) queda siempre al día.
+insert into public.documentos (empresa_id, tecnico_id, tipo, nombre_archivo, path, vence, estado, revisado_at)
+select t.empresa_id, t.id, 'constancia_matricula', 'constancia-matricula-ciazt.pdf',
+  t.empresa_id || '/legajo/constancia-matricula-demo.pdf',
+  case
+    when e.numero_registro = 1 then public.hoy() + 25
+    when e.numero_registro % 9 = 0 then public.hoy() - 6
+    when e.numero_registro % 7 = 0 then public.hoy() + 4
+    else public.hoy() + 10 + (e.numero_registro % 50)
+  end,
+  case when e.numero_registro % 2 = 0 then 'aprobado'::public.estado_documento else 'pendiente' end,
+  case when e.numero_registro % 2 = 0 then now() - interval '5 days' end
+from public.tecnicos t
+join public.empresas e on e.id = t.empresa_id
+where t.estado = 'aprobado' and e.numero_registro is not null and e.numero_registro % 11 <> 0;
+
 -- Sin auditoría de la carga de demostración.
 truncate public.auditoria;

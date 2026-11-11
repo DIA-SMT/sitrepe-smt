@@ -29,6 +29,12 @@ export const fechaOpcional = z
   .refine((v) => v === null || /^\d{4}-\d{2}-\d{2}$/.test(v), "Ingresá una fecha válida.");
 
 /** Fecha 'AAAA-MM-DD' que no puede ser posterior a hoy (hora de Tucumán). */
+/** Fecha de vigencia obligatoria (hoy o posterior). */
+export const fechaVigente = z
+  .string("Ingresá la fecha.")
+  .regex(/^\d{4}-\d{2}-\d{2}$/, "Ingresá una fecha válida.")
+  .refine((v) => v >= hoyISO(), "La fecha ya pasó: subí una constancia vigente.");
+
 export const fechaHastaHoy = z
   .string("Ingresá la fecha.")
   .regex(/^\d{4}-\d{2}-\d{2}$/, "Ingresá una fecha válida.")

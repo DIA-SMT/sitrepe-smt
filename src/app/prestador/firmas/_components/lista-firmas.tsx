@@ -41,7 +41,7 @@ export function ListaFirmas({
   bloqueado = false,
 }: {
   grupos: GrupoFirma[];
-  /** El asesor no está aprobado por la Dirección: puede revisar, pero no firmar. */
+  /** El asesor no está aprobado o no tiene la matrícula al día: puede revisar, pero no firmar. */
   bloqueado?: boolean;
 }) {
   const todos = useMemo(() => grupos.flatMap((g) => g.filas.map((f) => f.id)), [grupos]);

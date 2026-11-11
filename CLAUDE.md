@@ -42,6 +42,10 @@ variables, funciones y archivos en español (como el resto del código). Fechas 
 - Escrituras directas permitidas (por permisos de columna + RLS): ver `20261026000300_seguridad.sql`. Ej.: la empresa
   inserta `declaraciones (empresa_id, tipo, observaciones)` y `certificados` (sin estado/firma/pago), edita
   certificados solo en `borrador`/`observado`; el staff inserta inspecciones, notificaciones, actas, etc.
+- Matrícula del asesor: la constancia del colegio (CIAZT) es un documento `constancia_matricula` con `tecnico_id` y
+  `vence` (DDJJ; la Dirección puede rechazarla). `firmar_certificados` exige una no rechazada y vigente
+  (`matricula_vigente_hasta()`); `v_matriculas` y la alerta `matricula_asesor` (7 días antes) muestran la situación.
+  En la UI, `src/lib/domain/matricula.ts`.
 - El vencimiento de los certificados (`fecha_vencimiento`) lo calcula la base. Para vista previa en la UI usar
   `calcularVencimiento()` de `src/lib/domain/vencimiento.ts`.
 - Si un módulo necesita un cambio de esquema, NO editar migraciones existentes: describirlo en el reporte final.

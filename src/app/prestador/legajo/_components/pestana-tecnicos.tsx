@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ExternalLink, FileText, GraduationCap, Mail, Phone, Star, Trash2, UsersRound } from "lucide-react";
+import { BadgeCheck, ExternalLink, FileText, GraduationCap, Mail, Phone, Star, Trash2, Upload, UsersRound } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EstadoBadge } from "@/components/shared/estado-badge";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -8,12 +8,14 @@ import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ESTADO_DOCUMENTO, ESTADO_TECNICO, ESTADO_TRAMITE } from "@/lib/domain/etiquetas";
+import { ESTADO_DOCUMENTO, ESTADO_TECNICO, ESTADO_TRAMITE, SITUACION_MATRICULA } from "@/lib/domain/etiquetas";
 import { formatFecha } from "@/lib/domain/formato";
+import { constanciaVigente, puedeFirmarConMatricula, situacionMatricula } from "@/lib/domain/matricula";
 import { cn } from "@/lib/utils";
 import { eliminarTecnico } from "../actions";
 import { ultimoTramiteDe } from "../_lib/vinculos";
 import { AccionConfirmada } from "./accion-confirmada";
+import { FormMatricula } from "./form-matricula";
 import { FormTecnico } from "./form-tecnico";
 import type { DocumentoLegajo, OpcionTecnico, TecnicoLegajo, TramiteTecnico } from "./tipos";
 
@@ -25,13 +27,28 @@ type PestanaTecnicosProps = {
   tramitesTecnico: TramiteTecnico[];
   aprobados: OpcionTecnico[];
   bloqueo: string | null;
+  hoy: string;
+  /** Si quien mira es un asesor, solo puede informar su propia matrícula. */
+  tecnicoPropio: string | null;
 };
 
 const ORDEN_ESTADO: Record<TecnicoLegajo["estado"], number> = { aprobado: 0, pendiente: 1, rechazado: 2, baja: 3 };
 
-export function PestanaTecnicos({ empresaId, tecnicos, documentos, tramitesTecnico, aprobados, bloqueo }: PestanaTecnicosProps) {
+export function PestanaTecnicos({
+  empresaId,
+  tecnicos,
+  documentos,
+  tramitesTecnico,
+  aprobados,
+  bloqueo,
+  hoy,
+  tecnicoPropio,
+}: PestanaTecnicosProps) {
   const ordenados = [...tecnicos].sort(
     (a, b) => ORDEN_ESTADO[a.estado] - ORDEN_ESTADO[b.estado] || Number(b.es_representante) - Number(a.es_representante),
+  );
+  const sinMatricula = tecnicos.filter(
+    (t) => t.estado === "aprobado" && !puedeFirmarConMatricula(situacionMatricula(constanciaVigente(documentos, t.id)?.vence, hoy)),
   );
 
   return (
@@ -46,9 +63,18 @@ export function PestanaTecnicos({ empresaId, tecnicos, documentos, tramitesTecni
         <FormTecnico empresaId={empresaId} aprobados={aprobados} bloqueado={bloqueo} />
       </div>
 
-      <Alert tone="info" title="Solo firman los asesores aprobados (Art. 5.º)">
+      {sinMatricula.length > 0 ? (
+        <Alert tone="danger" title="Hay asesores sin matrícula vigente">
+          {sinMatricula.map((t) => `${t.nombre} ${t.apellido}`).join(", ")}{" "}
+          {sinMatricula.length === 1 ? "no puede" : "no pueden"} firmar certificados hasta que cargues la constancia de
+          matrícula al día del colegio profesional (CIAZT).
+        </Alert>
+      ) : null}
+
+      <Alert tone="info" title="Solo firman los asesores aprobados y con la matrícula al día (Art. 5.º)">
         Cada alta o reemplazo de asesor se presenta como trámite con el título autenticado. La memoria técnica se
-        actualiza ante cada cambio de técnico.
+        actualiza ante cada cambio de técnico. Cada vez que el asesor pague su matrícula, cargá la constancia nueva: el
+        sistema avisa 7 días antes del vencimiento.
       </Alert>
 
       {ordenados.length === 0 ? (
@@ -61,7 +87,11 @@ export function PestanaTecnicos({ empresaId, tecnicos, documentos, tramitesTecni
         <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {ordenados.map((t) => {
             const nombre = `${t.nombre} ${t.apellido}`;
-            const titulos = documentos.filter((d) => d.tecnico_id === t.id);
+            const titulos = documentos.filter((d) => d.tecnico_id === t.id && d.tipo === "titulo_tecnico");
+            const constancia = constanciaVigente(documentos, t.id);
+            const situacion = situacionMatricula(constancia?.vence, hoy);
+            const puedeInformar =
+              !bloqueo && (t.estado === "aprobado" || t.estado === "pendiente") && (!tecnicoPropio || tecnicoPropio === t.id);
             const tramite = ultimoTramiteDe(tramitesTecnico, "tecnico_id", t.id);
             // resolver_tramite no cambia el estado del asesor al rechazar: sigue "pendiente" pero sin efecto.
             const solicitudRechazada = t.estado === "pendiente" && tramite?.estado === "rechazado";
@@ -140,6 +170,59 @@ export function PestanaTecnicos({ empresaId, tecnicos, documentos, tramitesTecni
                       </dd>
                     </div>
                   </dl>
+
+                  {t.estado === "aprobado" || t.estado === "pendiente" ? (
+                    <div
+                      className={cn(
+                        "flex flex-col gap-2 rounded-lg border px-3 py-2.5 text-[13px]",
+                        situacion === "vigente"
+                          ? "border-emerald-200 bg-emerald-50/60"
+                          : situacion === "por_vencer"
+                            ? "border-amber-200 bg-warning-soft"
+                            : "border-red-200 bg-danger-soft",
+                      )}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <EstadoBadge mapa={SITUACION_MATRICULA} valor={situacion} size="sm" />
+                        {constancia ? (
+                          <span className="font-medium">
+                            {situacion === "vencida" ? "Venció el" : "Al día hasta el"} {formatFecha(constancia.vence)}
+                          </span>
+                        ) : null}
+                      </div>
+                      {situacion === "vencida" || situacion === "sin_informar" ? (
+                        <p className="text-red-900">No puede firmar certificados hasta cargar la constancia vigente.</p>
+                      ) : null}
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        {constancia?.id ? (
+                          <a
+                            href={`/prestador/legajo/documento/${constancia.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 font-medium text-azul-700 hover:underline"
+                          >
+                            <BadgeCheck className="size-3.5 shrink-0" aria-hidden />
+                            Ver constancia
+                            <span className="sr-only">(se abre en una pestaña nueva)</span>
+                          </a>
+                        ) : (
+                          <span className="text-muted-foreground">Sin constancia cargada</span>
+                        )}
+                        {puedeInformar ? (
+                          <FormMatricula
+                            empresaId={empresaId}
+                            tecnico={{ id: t.id, nombre }}
+                            trigger={
+                              <Button variant="outline" size="sm">
+                                <Upload aria-hidden />
+                                {constancia ? "Actualizar" : "Cargar constancia"}
+                              </Button>
+                            }
+                          />
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : null}
 
                   {titulos.length > 0 ? (
                     <ul className="flex flex-col gap-1.5">

@@ -369,6 +369,24 @@ export async function getTecnico(empresaId: string, tecnicoId: string) {
   return data;
 }
 
+/** Vigencia de la matrícula del asesor: la constancia no rechazada con el vencimiento más lejano. */
+export async function getVigenciaMatricula(tecnicoId: string): Promise<string | null> {
+  if (!esUuid(tecnicoId)) return null;
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("documentos")
+    .select("vence")
+    .eq("tecnico_id", tecnicoId)
+    .eq("tipo", "constancia_matricula")
+    .neq("estado", "rechazado")
+    .not("vence", "is", null)
+    .order("vence", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw new Error(mensajeError(error));
+  return data?.vence ?? null;
+}
+
 /** Certificados asignados al técnico, sin firma y todavía editables. */
 export async function getFirmasPendientes(empresaId: string, tecnicoId: string): Promise<CertificadoPlanilla[]> {
   if (!esUuid(tecnicoId)) return [];

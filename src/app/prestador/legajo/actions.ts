@@ -4,13 +4,14 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { type EstadoAccion, exito, fallo, falloValidacion, mensajeError } from "@/lib/acciones";
 import { requerirEmpresa } from "@/lib/auth";
-import { hoyISO } from "@/lib/domain/formato";
+import { formatFecha, hoyISO } from "@/lib/domain/formato";
 import { createClient } from "@/lib/supabase/server";
 import { Constants } from "@/lib/supabase/database.types";
 import {
   casilla,
   datosFormulario,
   fechaOpcional,
+  fechaVigente,
   idValido,
   juntarErrores,
   nombreArchivo,
@@ -152,8 +153,14 @@ export async function agregarTecnico(_prev: EstadoAccion, formData: FormData): P
   const crudo = datosFormulario(formData);
   const parse = esquemaTecnico.safeParse(crudo);
   const titulo = rutaEmpresa([empresaId, "legajo"], "Adjuntá el título autenticado.").safeParse(crudo.titulo_path);
-  const errores = juntarErrores(parse, { titulo_path: titulo });
-  if (errores || !parse.success || !titulo.success) return fallo(REVISAR, errores ?? {});
+  const constancia = rutaEmpresa([empresaId, "legajo"], "Adjuntá la constancia de matrícula al día.").safeParse(
+    crudo.constancia_path,
+  );
+  const vigencia = fechaVigente.safeParse(crudo.matricula_vence);
+  const errores = juntarErrores(parse, { titulo_path: titulo, constancia_path: constancia, matricula_vence: vigencia });
+  if (errores || !parse.success || !titulo.success || !constancia.success || !vigencia.success) {
+    return fallo(REVISAR, errores ?? {});
+  }
   const datos = parse.data;
 
   const supabase = await createClient();
@@ -215,6 +222,13 @@ export async function agregarTecnico(_prev: EstadoAccion, formData: FormData): P
         tipo: "titulo_tecnico",
         path: titulo.data,
         nombre_archivo: nombreArchivo(titulo.data, crudo.titulo_nombre),
+        tecnico_id: tecnico.id,
+      },
+      {
+        tipo: "constancia_matricula",
+        path: constancia.data,
+        nombre_archivo: nombreArchivo(constancia.data, crudo.constancia_nombre),
+        vence: vigencia.data,
         tecnico_id: tecnico.id,
       },
     ],
@@ -316,7 +330,9 @@ export async function eliminarTecnico(_prev: EstadoAccion, formData: FormData): 
  * -------------------------------------------------------------------------- */
 
 const esquemaDocumento = z.object({
-  tipo: z.enum(Constants.public.Enums.tipo_documento, "Seleccioná el tipo de documento."),
+  tipo: z
+    .enum(Constants.public.Enums.tipo_documento, "Seleccioná el tipo de documento.")
+    .refine((v) => v !== "constancia_matricula", "La constancia de matrícula se carga desde la pestaña Asesores técnicos."),
   vence: fechaOpcional.refine(
     (v) => v === null || v >= hoyISO(),
     "La fecha de vencimiento ya pasó: subí un documento vigente.",
@@ -366,6 +382,65 @@ export async function subirDocumento(_prev: EstadoAccion, formData: FormData): P
 
   revalidarLegajo();
   return exito("Documento cargado. La Dirección lo revisará y te avisará si hay observaciones.");
+}
+
+/* --------------------------------------------------------------------------
+ * Matrícula profesional al día del asesor (constancia del colegio, DDJJ)
+ * -------------------------------------------------------------------------- */
+
+const esquemaMatricula = z.object({
+  tecnico_id: idValido,
+  vence: fechaVigente,
+  observaciones: textoOpcional(300),
+});
+
+export async function informarMatricula(_prev: EstadoAccion, formData: FormData): Promise<EstadoAccion> {
+  const sesion = await requerirEmpresa();
+  const empresaId = sesion.empresa.id;
+  const bloqueo = motivoBloqueo(sesion.empresa.estado);
+  if (bloqueo) return fallo(bloqueo);
+
+  const crudo = datosFormulario(formData);
+  const parse = esquemaMatricula.safeParse(crudo);
+  const archivo = rutaEmpresa([empresaId, "legajo"], "Adjuntá la constancia del colegio profesional.").safeParse(crudo.path);
+  const errores = juntarErrores(parse, { path: archivo });
+  if (errores || !parse.success || !archivo.success) return fallo(REVISAR, errores ?? {});
+  const datos = parse.data;
+  // El asesor solo informa su propia matrícula; la administración de la empresa, la de cualquiera.
+  if (sesion.perfil.rol === "tecnico" && sesion.perfil.tecnico_id !== datos.tecnico_id) {
+    return fallo("Solo podés informar tu propia matrícula.");
+  }
+
+  const supabase = await createClient();
+  const { data: tecnico, error: errorTecnico } = await supabase
+    .from("tecnicos")
+    .select("id, nombre, apellido, estado")
+    .eq("id", datos.tecnico_id)
+    .eq("empresa_id", empresaId)
+    .maybeSingle();
+  if (errorTecnico) return fallo(mensajeError(errorTecnico));
+  if (!tecnico || (tecnico.estado !== "aprobado" && tecnico.estado !== "pendiente")) {
+    return fallo("El asesor seleccionado no está activo en tu empresa.", { tecnico_id: ["Seleccioná un asesor activo."] });
+  }
+
+  const { error } = await supabase.from("documentos").insert({
+    empresa_id: empresaId,
+    tecnico_id: tecnico.id,
+    tipo: "constancia_matricula",
+    nombre_archivo: nombreArchivo(archivo.data, crudo.nombre_archivo),
+    path: archivo.data,
+    vence: datos.vence,
+    estado: "pendiente",
+    observaciones: datos.observaciones,
+  });
+  if (error) return fallo(mensajeError(error, "No se pudo registrar la constancia."));
+
+  revalidarLegajo();
+  revalidatePath("/prestador/firmas");
+  revalidatePath("/prestador");
+  return exito(
+    `Constancia de ${tecnico.nombre} ${tecnico.apellido} cargada con vigencia hasta el ${formatFecha(datos.vence)}. La Dirección puede revisarla.`,
+  );
 }
 
 export async function eliminarDocumento(_prev: EstadoAccion, formData: FormData): Promise<EstadoAccion> {

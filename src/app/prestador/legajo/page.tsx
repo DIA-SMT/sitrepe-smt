@@ -165,10 +165,12 @@ export default async function LegajoPage({
           <PestanaTecnicos
             empresaId={empresaId}
             tecnicos={tecnicos}
-            documentos={documentos.filter((d) => d.tipo === "titulo_tecnico")}
+            documentos={documentos.filter((d) => d.tipo === "titulo_tecnico" || d.tipo === "constancia_matricula")}
             tramitesTecnico={tramitesTecnico}
             aprobados={aprobados.map((t) => ({ id: t.id, nombre: `${t.nombre} ${t.apellido}` }))}
             bloqueo={bloqueo}
+            hoy={hoy}
+            tecnicoPropio={sesion.perfil.rol === "tecnico" ? sesion.perfil.tecnico_id : null}
           />
         </TabsContent>
         <TabsContent value="documentacion">

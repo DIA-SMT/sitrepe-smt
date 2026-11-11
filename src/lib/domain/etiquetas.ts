@@ -1,4 +1,5 @@
 import type { Enums } from "@/lib/supabase/database.types";
+import type { SituacionMatricula } from "./matricula";
 import type { Vigencia } from "./vencimiento";
 
 /** Tonos de Badge/StatusBadge del sistema de diseño. */
@@ -42,6 +43,13 @@ export const ESTADO_TECNICO: Mapa<Enums<"estado_tecnico">> = {
   aprobado: { label: "Aprobado", tono: "verde" },
   rechazado: { label: "Rechazado", tono: "rojo" },
   baja: { label: "Baja", tono: "neutral" },
+};
+
+export const SITUACION_MATRICULA: Mapa<SituacionMatricula> = {
+  vigente: { label: "Matrícula al día", tono: "verde" },
+  por_vencer: { label: "Matrícula por vencer", tono: "ambar" },
+  vencida: { label: "Matrícula vencida", tono: "rojo", descripcion: "No puede firmar certificados." },
+  sin_informar: { label: "Matrícula sin informar", tono: "rojo", descripcion: "No puede firmar certificados." },
 };
 
 export const ESTADO_MEMORIA: Mapa<Enums<"estado_memoria">> = {
@@ -128,6 +136,7 @@ export const TIPO_DOCUMENTO: Mapa<Enums<"tipo_documento">> = {
   constancia_cuit: { label: "Constancia de CUIT (AFIP/ARCA)", tono: "neutral" },
   dni_titular: { label: "DNI del titular", tono: "neutral" },
   titulo_tecnico: { label: "Título del asesor técnico (autenticado)", tono: "violeta" },
+  constancia_matricula: { label: "Constancia de matrícula al día (CIAZT)", tono: "violeta" },
   carnet_sanidad: { label: "Carnet de sanidad", tono: "verde" },
   memoria_tecnica: { label: "Memoria técnica", tono: "azul" },
   habilitacion_comercial: { label: "Habilitación comercial", tono: "celeste" },

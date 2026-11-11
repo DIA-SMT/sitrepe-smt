@@ -7,6 +7,7 @@ import {
   ClipboardCheck,
   FileClock,
   FilePenLine,
+  GraduationCap,
   Info,
   Receipt,
   ScrollText,
@@ -25,6 +26,7 @@ import { cn } from "@/lib/utils";
 const ICONO_TIPO: Record<string, LucideIcon> = {
   habilitacion_por_vencer: Building2,
   documento_por_vencer: FileClock,
+  matricula_asesor: GraduationCap,
   pago_a_verificar: Receipt,
   declaracion_a_controlar: ClipboardCheck,
   declaracion_observada: FilePenLine,

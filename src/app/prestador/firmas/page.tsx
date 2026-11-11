@@ -17,9 +17,19 @@ import {
   getFirmadosRecientes,
   getFirmasPendientes,
   getTecnico,
+  getVigenciaMatricula,
 } from "@/lib/data/declaraciones";
-import { ESTADO_CERTIFICADO, ESTADO_TECNICO } from "@/lib/domain/etiquetas";
-import { formatFechaHora, formatLitros, formatNumero, formatRelativo, formatSuperficie } from "@/lib/domain/formato";
+import { ESTADO_CERTIFICADO, ESTADO_TECNICO, SITUACION_MATRICULA } from "@/lib/domain/etiquetas";
+import {
+  formatFecha,
+  formatFechaHora,
+  formatLitros,
+  formatNumero,
+  formatRelativo,
+  formatSuperficie,
+  hoyISO,
+} from "@/lib/domain/formato";
+import { puedeFirmarConMatricula, situacionMatricula } from "@/lib/domain/matricula";
 import {
   type Antelacion,
   ahoraMs,
@@ -114,15 +124,18 @@ export default async function FirmasPage() {
     );
   }
 
-  const [tecnico, pendientes, recientes, antelacion] = await Promise.all([
+  const [tecnico, pendientes, recientes, antelacion, vigencia] = await Promise.all([
     getTecnico(empresa.id, tecnicoId),
     getFirmasPendientes(empresa.id, tecnicoId),
     getFirmadosRecientes(empresa.id, tecnicoId, 10),
     getAntelacion(),
+    getVigenciaMatricula(tecnicoId),
   ]);
   const { grupos, urgentes, proximo } = agrupar(pendientes, antelacion);
   const nombreTecnico = tecnico ? `${tecnico.nombre} ${tecnico.apellido}` : "Asesor técnico";
   const aprobado = tecnico?.estado === "aprobado";
+  const matricula = situacionMatricula(vigencia, hoyISO());
+  const matriculaAlDia = puedeFirmarConMatricula(matricula);
 
   return (
     <div className="flex flex-col gap-6">
@@ -141,7 +154,10 @@ export default async function FirmasPage() {
           </p>
         </div>
         {tecnico ? (
-          <EstadoBadge mapa={ESTADO_TECNICO} valor={tecnico.estado} size="lg" className="relative self-start sm:self-center" />
+          <div className="relative flex flex-wrap gap-2 self-start sm:flex-col sm:items-end sm:self-center">
+            <EstadoBadge mapa={ESTADO_TECNICO} valor={tecnico.estado} size="lg" />
+            {aprobado ? <EstadoBadge mapa={SITUACION_MATRICULA} valor={matricula} size="lg" /> : null}
+          </div>
         ) : null}
       </div>
 
@@ -149,6 +165,25 @@ export default async function FirmasPage() {
         <Alert tone="warning" title="Tu registro como asesor técnico no está aprobado">
           Solo los asesores aprobados por la Dirección de Salud Ambiental pueden firmar certificados. Consultá el estado de tu
           legajo con la administración de tu empresa.
+        </Alert>
+      ) : null}
+
+      {aprobado && !matriculaAlDia ? (
+        <Alert
+          tone="danger"
+          title={matricula === "vencida" ? `Tu matrícula profesional venció el ${formatFecha(vigencia)}` : "No informaste tu matrícula profesional al día"}
+          action={
+            <Button asChild size="sm">
+              <Link href="/prestador/legajo?tab=tecnicos">Cargar constancia</Link>
+            </Button>
+          }
+        >
+          Para firmar certificados necesitás la matrícula al día en tu colegio profesional (CIAZT). Subí la constancia
+          actualizada en Legajo → Asesores técnicos y vas a poder firmar enseguida.
+        </Alert>
+      ) : aprobado && matricula === "por_vencer" ? (
+        <Alert tone="warning" title={`Tu matrícula vence el ${formatFecha(vigencia)}`}>
+          Cuando la renueves, cargá la constancia nueva en Legajo → Asesores técnicos para no quedar sin poder firmar.
         </Alert>
       ) : null}
 
@@ -182,7 +217,7 @@ export default async function FirmasPage() {
           }
         />
       ) : (
-        <ListaFirmas grupos={grupos} bloqueado={!aprobado} />
+        <ListaFirmas grupos={grupos} bloqueado={!aprobado || !matriculaAlDia} />
       )}
 
       <SectionCard

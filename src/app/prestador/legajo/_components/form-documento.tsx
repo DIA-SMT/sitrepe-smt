@@ -28,8 +28,8 @@ import { useEnvio } from "./use-envio";
 
 type TipoDocumento = Enums<"tipo_documento">;
 
-/** Tipos que se cargan desde otros circuitos (análisis de agua: certificados de tanques). */
-const TIPOS_EXCLUIDOS: TipoDocumento[] = ["analisis_agua"];
+/** Tipos que se cargan desde otros circuitos (análisis de agua: certificados de tanques; matrícula: asesores). */
+const TIPOS_EXCLUIDOS: TipoDocumento[] = ["analisis_agua", "constancia_matricula"];
 
 /** Tipos que suelen tener vencimiento propio. */
 const CON_VENCIMIENTO: TipoDocumento[] = ["carnet_sanidad", "habilitacion_comercial", "libre_deuda", "seguro", "constancia_cuit"];

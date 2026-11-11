@@ -32,12 +32,14 @@ import {
   type Tecnico,
   estadoDocumento,
 } from "@/lib/data/empresas";
+import { constanciaVigente, situacionMatricula } from "@/lib/domain/matricula";
 import {
   CLASE_PRODUCTO,
   ESTADO_DOCUMENTO,
   ESTADO_EMPRESA,
   ESTADO_MEMORIA,
   ESTADO_TECNICO,
+  SITUACION_MATRICULA,
   TIPO_DOCUMENTO,
 } from "@/lib/domain/etiquetas";
 import { diasHasta, formatFecha, formatFechaHora, hoyISO } from "@/lib/domain/formato";
@@ -270,12 +272,16 @@ export function TabTecnicos({
     );
   }
   const aprobados = tecnicos.filter((t) => t.estado === "aprobado").length;
+  const hoy = hoyISO();
 
   return (
     <ul className="grid gap-4 md:grid-cols-2">
       {tecnicos.map((t) => {
         const nombre = `${t.nombre} ${t.apellido}`;
         const docs = documentos.filter((d) => d.tecnico_id === t.id);
+        const constancia = constanciaVigente(documentos, t.id);
+        const situacion = situacionMatricula(constancia?.vence, hoy);
+        const activo = t.estado === "aprobado" || t.estado === "pendiente";
         return (
           <li key={t.id}>
             <Card
@@ -319,6 +325,18 @@ export function TabTecnicos({
                   { label: "Baja", value: t.fecha_baja ? formatFecha(t.fecha_baja) : null },
                 ]}
               />
+
+              {activo ? (
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-subtle/50 px-3 py-2 text-[13px]">
+                  <EstadoBadge mapa={SITUACION_MATRICULA} valor={situacion} size="sm" />
+                  <span className="font-medium">
+                    {constancia
+                      ? `${situacion === "vencida" ? "Venció el" : "Al día hasta el"} ${formatFecha(constancia.vence)}`
+                      : "Sin constancia de matrícula"}
+                    {constancia?.estado === "pendiente" ? " · DDJJ sin revisar" : ""}
+                  </span>
+                </div>
+              ) : null}
 
               {docs.length > 0 ? (
                 <div className="flex flex-col gap-1.5">

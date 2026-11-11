@@ -60,6 +60,8 @@ function destinoAlerta(a: Alerta): { href: string; accion: string } | null {
       return { href: "/prestador/legajo?tab=renovacion", accion: "Renovar" };
     case "documento_por_vencer":
       return { href: "/prestador/legajo?tab=documentacion", accion: "Actualizar" };
+    case "matricula_asesor":
+      return { href: "/prestador/legajo?tab=tecnicos", accion: "Cargar constancia" };
     case "declaracion_observada":
       return a.referencia_id ? { href: `/prestador/declaraciones/${a.referencia_id}`, accion: "Corregir" } : null;
     case "notificacion_vencida":

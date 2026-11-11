@@ -227,6 +227,27 @@ function adaptarAlerta(a: Views<"v_alertas">): AlertaPrestador | null {
         titulo: nivel === "urgente" ? "Documento vencido en tu legajo" : "Documento del legajo por vencer",
         href: "/prestador/legajo?tab=documentacion",
       };
+    case "matricula_asesor": {
+      // Detalle: "Empresa · Asesor · vence el dd/mm/aaaa" (sin fecha si no informó la matrícula).
+      const asesor = (a.detalle ?? "").split(" · ")[1] ?? "El asesor";
+      return {
+        ...base,
+        // Para la empresa, no tener la matrícula informada bloquea la firma: no es solo informativo.
+        nivel: nivel === "info" ? "urgente" : nivel,
+        fecha: dia,
+        titulo:
+          nivel === "urgente"
+            ? `Matrícula vencida: ${asesor} no puede firmar`
+            : nivel === "alerta"
+              ? `La matrícula de ${asesor} está por vencer`
+              : `${asesor} no tiene la matrícula al día informada`,
+        detalle:
+          nivel === "alerta"
+            ? `Vence el ${formatFecha(dia)}. Cuando la renueve, cargá la constancia nueva del colegio profesional (CIAZT).`
+            : "No puede firmar certificados hasta que cargues la constancia de matrícula al día del colegio profesional (CIAZT).",
+        href: "/prestador/legajo?tab=tecnicos",
+      };
+    }
     case "pago_a_verificar":
       return { ...base, titulo: "Pago informado: en verificación", href: ref ? `/prestador/pagos/${ref}` : "/prestador/pagos" };
     case "declaracion_a_controlar":

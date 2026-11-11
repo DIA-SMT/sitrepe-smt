@@ -78,7 +78,11 @@ técnico (rol técnico). Circuito de un servicio:
    los certificados: domicilio, cliente, rubro del Anexo, superficie, productos aprobados, fecha y hora. El vencimiento
    se calcula solo. Se rechazan las declaraciones fuera de plazo o de empresas no habilitadas.
 2. **Firma del asesor técnico** ([Firmas pendientes](/prestador/firmas)): solo el técnico registrado firma. Si después se
-   cambia la fecha, el asesor o los productos, la firma se invalida y hay que volver a firmar.
+   cambia la fecha, el asesor o los productos, la firma se invalida y hay que volver a firmar. Para firmar, el asesor
+   necesita la **matrícula profesional al día** en su colegio (CIAZT para ingenieros agrónomos): se carga la constancia y
+   la fecha hasta la que está paga en [Legajo → Asesores técnicos](/prestador/legajo?tab=tecnicos), con carácter de
+   declaración jurada. El sistema avisa 7 días antes del vencimiento; con la matrícula vencida o sin informar no se puede
+   firmar. Quien paga por mes o por trimestre carga la constancia nueva en cada pago.
 3. **Presentación**: con todo firmado, la empresa presenta la declaración.
 4. **Control**: el área la revisa; puede aprobarla, observar certificados (se corrigen y se vuelve a presentar) o rechazarla.
 5. **Pago y timbrado** ([Pagos y timbrado](/prestador/pagos)): se genera la liquidación con los certificados controlados,
@@ -94,6 +98,9 @@ habilitación comercial, carnet de sanidad, título del técnico, técnicos y me
 const GUIA_GESTION = `
 Estás en la gestión interna: te escribe personal de la ${APP.direccion} (administración, Control y timbrado o inspección).
 Ayudalo a usar las pantallas, ubicar pendientes y aplicar los procedimientos:
+- Matrícula de los asesores: en la ficha de cada empresa (pestaña Técnicos) se ve si el asesor tiene la matrícula al
+  día, vencida o sin informar, y la constancia cargada (declaración jurada, se puede rechazar si no es válida). El sitio
+  del CIAZT no tiene una consulta pública de matrículas activas. Las alertas del panel avisan las vencidas y por vencer.
 - Control de declaraciones: cotejar cada certificado con la planilla, rubro y vencimiento correctos, empresa habilitada;
   aprobar, observar certificados puntuales con motivo, o rechazar.
 - Pagos y conciliación: verificar que la transferencia o boleta coincida con la liquidación y la cuenta (505 o 091);

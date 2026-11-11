@@ -249,6 +249,35 @@ async function main() {
     afirmar(r.n === 1, `firmó ${r.n}`);
   });
 
+  await prueba("sin matrícula vigente el técnico no puede firmar", async () => {
+    const firmar = () => comoUsuario(db, usuarioTecnico, (tx) => tx.query(`select firmar_certificados($1)`, [[certificado]]));
+    const constancia = await uno<{ id: string; vence: string }>(
+      db,
+      `select id, vence::text from documentos where tecnico_id = $1 and tipo = 'constancia_matricula'`,
+      [tecnico1.id],
+    );
+    afirmar(constancia, "el asesor de demostración debería tener constancia de matrícula");
+    const m = await comoUsuario(db, usuarioEmpresa, (tx) =>
+      uno<{ situacion: string }>(tx, `select situacion from v_matriculas where tecnico_id = $1`, [tecnico1.id]),
+    );
+    afirmar(m?.situacion === "vigente", `situación = ${m?.situacion}`);
+
+    await db.query(`update documentos set vence = public.hoy() - 1 where id = $1`, [constancia.id]);
+    await debeFallar(firmar, "venció");
+    const alerta = await comoUsuario(db, usuarioEmpresa, (tx) =>
+      uno<{ nivel: string }>(tx, `select nivel from v_alertas where tipo = 'matricula_asesor' and referencia_id = $1`, [
+        tecnico1.id,
+      ]),
+    );
+    afirmar(alerta?.nivel === "urgente", `alerta = ${alerta?.nivel}`);
+
+    await db.query(`update documentos set vence = $2::date, estado = 'rechazado' where id = $1`, [constancia.id, constancia.vence]);
+    await debeFallar(firmar, "constancia");
+
+    await db.query(`update documentos set estado = 'pendiente' where id = $1`, [constancia.id]);
+    await firmar();
+  });
+
   await prueba("editar un certificado firmado invalida la firma", async () => {
     await comoUsuario(db, usuarioEmpresa, (tx) =>
       tx.query(`update certificados set superficie_m2 = 130 where id = $1`, [certificado]),
@@ -426,7 +455,7 @@ async function main() {
         "v_empresas", "v_certificados", "v_declaraciones", "v_pagos", "v_establecimientos_estado", "v_agenda_servicios",
         "v_notificaciones", "v_inspecciones", "v_actas", "v_tramites", "v_documentos", "v_memorias_tecnicas",
         "v_envases_saldo", "v_recaudacion_mensual", "v_planilla_mensual", "v_estadisticas_rubro", "v_estadisticas_zona",
-        "v_estadisticas_producto",
+        "v_estadisticas_producto", "v_matriculas",
       ];
       for (const v of vistas) await tx.query(`select * from ${v} limit 5`);
       return { k: k.k, hoja: hoja.n, alertas: alertas.n, informe: informe.i };

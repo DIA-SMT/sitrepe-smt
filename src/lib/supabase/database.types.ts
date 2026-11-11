@@ -2239,6 +2239,27 @@ export type Database = {
         }
         Relationships: []
       }
+      v_matriculas: {
+        Row: {
+          tecnico_id: string | null
+          empresa_id: string | null
+          empresa_nombre: string | null
+          numero_registro: number | null
+          empresa_estado: Database["public"]["Enums"]["estado_empresa"] | null
+          tecnico_nombre: string | null
+          dni: string | null
+          titulo: string | null
+          matricula: string | null
+          es_representante: boolean | null
+          constancia_id: string | null
+          constancia_nombre: string | null
+          constancia_estado: Database["public"]["Enums"]["estado_documento"] | null
+          constancia_cargada_at: string | null
+          vence: string | null
+          situacion: string | null
+        }
+        Relationships: []
+      }
       v_memorias_tecnicas: {
         Row: {
           id: string | null
@@ -2520,6 +2541,12 @@ export type Database = {
         }
         Returns: Json
       }
+      matricula_vigente_hasta: {
+        Args: {
+          p_tecnico: string
+        }
+        Returns: string
+      }
       parametro_int: {
         Args: {
           p_clave: string
@@ -2690,7 +2717,7 @@ export type Database = {
       resultado_inspeccion: "conforme" | "no_conforme" | "ausente"
       rol_usuario: "admin" | "control" | "inspector" | "empresa" | "tecnico"
       tipo_denuncia: "empresa_no_habilitada" | "servicio_mal_realizado" | "establecimiento_sin_certificado" | "envases_descartados" | "tanque_sin_limpieza" | "otro"
-      tipo_documento: "constancia_cuit" | "dni_titular" | "titulo_tecnico" | "carnet_sanidad" | "memoria_tecnica" | "habilitacion_comercial" | "plano_local" | "ddjj_anual" | "libre_deuda" | "seguro" | "analisis_agua" | "otro"
+      tipo_documento: "constancia_cuit" | "dni_titular" | "titulo_tecnico" | "constancia_matricula" | "carnet_sanidad" | "memoria_tecnica" | "habilitacion_comercial" | "plano_local" | "ddjj_anual" | "libre_deuda" | "seguro" | "analisis_agua" | "otro"
       tipo_inspeccion: "muestreo_servicio" | "control_vencimiento" | "deposito_anual" | "habilitacion" | "denuncia" | "reinspeccion"
       tipo_notificacion: "tanques" | "fumigacion" | "documentacion" | "general"
       tipo_servicio: "fumigacion" | "tanque"
@@ -2739,7 +2766,7 @@ export const Constants = {
       resultado_inspeccion: ["conforme", "no_conforme", "ausente"],
       rol_usuario: ["admin", "control", "inspector", "empresa", "tecnico"],
       tipo_denuncia: ["empresa_no_habilitada", "servicio_mal_realizado", "establecimiento_sin_certificado", "envases_descartados", "tanque_sin_limpieza", "otro"],
-      tipo_documento: ["constancia_cuit", "dni_titular", "titulo_tecnico", "carnet_sanidad", "memoria_tecnica", "habilitacion_comercial", "plano_local", "ddjj_anual", "libre_deuda", "seguro", "analisis_agua", "otro"],
+      tipo_documento: ["constancia_cuit", "dni_titular", "titulo_tecnico", "constancia_matricula", "carnet_sanidad", "memoria_tecnica", "habilitacion_comercial", "plano_local", "ddjj_anual", "libre_deuda", "seguro", "analisis_agua", "otro"],
       tipo_inspeccion: ["muestreo_servicio", "control_vencimiento", "deposito_anual", "habilitacion", "denuncia", "reinspeccion"],
       tipo_notificacion: ["tanques", "fumigacion", "documentacion", "general"],
       tipo_servicio: ["fumigacion", "tanque"],

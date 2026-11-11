@@ -25,6 +25,7 @@ export const TIPOS_ALERTA_EMPRESA = [
   "habilitacion_por_vencer",
   "documento_por_vencer",
   "notificacion_vencida",
+  "matricula_asesor",
 ] as const;
 
 /* --------------------------------------------------------------------------

@@ -20,6 +20,7 @@ import {
 import { Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { hoyISO } from "@/lib/domain/formato";
 import { agregarTecnico } from "../actions";
 import { ErrorCampo } from "./error-campo";
 import { useEnvio } from "./use-envio";
@@ -35,6 +36,7 @@ type FormTecnicoProps = {
 export function FormTecnico({ empresaId, aprobados, bloqueado }: FormTecnicoProps) {
   const [abierto, setAbierto] = useState(false);
   const [nombreTitulo, setNombreTitulo] = useState("");
+  const [nombreConstancia, setNombreConstancia] = useState("");
   const { pendiente, onSubmit, error, reiniciar } = useEnvio(agregarTecnico, { alExito: () => setAbierto(false) });
 
   return (
@@ -45,6 +47,7 @@ export function FormTecnico({ empresaId, aprobados, bloqueado }: FormTecnicoProp
         setAbierto(v);
         if (v) {
           setNombreTitulo("");
+          setNombreConstancia("");
           reiniciar();
         }
       }}
@@ -136,6 +139,36 @@ export function FormTecnico({ empresaId, aprobados, bloqueado }: FormTecnicoProp
               <input type="hidden" name="titulo_nombre" value={nombreTitulo} />
               <ErrorCampo mensaje={error("titulo_path")} />
             </div>
+
+            <fieldset className="grid gap-4 rounded-xl border border-border p-4">
+              <legend className="px-1 text-sm font-semibold">Matrícula profesional al día</legend>
+              <p className="-mt-1 text-[13px] text-muted-foreground">
+                Constancia del colegio profesional (CIAZT para ingenieros agrónomos), con carácter de declaración jurada. Sin
+                matrícula vigente el asesor no puede firmar certificados.
+              </p>
+              <Field
+                htmlFor="tec-matricula-vence"
+                label="Al día hasta"
+                required
+                hint="Fecha hasta la que está paga la matrícula, según la constancia."
+                error={error("matricula_vence")}
+              >
+                <Input id="tec-matricula-vence" name="matricula_vence" type="date" required min={hoyISO()} />
+              </Field>
+              <div className="grid gap-2">
+                <SubirArchivo
+                  name="constancia_path"
+                  bucket="documentos"
+                  carpeta={[empresaId, "legajo"]}
+                  label="Constancia de matrícula al día"
+                  required
+                  hint="PDF, JPG o PNG de hasta 10 MB."
+                  onSubido={(_ruta, archivo) => setNombreConstancia(archivo.name)}
+                />
+                <input type="hidden" name="constancia_nombre" value={nombreConstancia} />
+                <ErrorCampo mensaje={error("constancia_path")} />
+              </div>
+            </fieldset>
 
             <Alert tone="info">
               Al aprobarse, el asesor podrá firmar certificados. Para que pueda ingresar a la plataforma con su propio

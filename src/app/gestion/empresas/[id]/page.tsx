@@ -25,7 +25,8 @@ import { TabsContent } from "@/components/ui/tabs";
 import { requerirStaff } from "@/lib/auth";
 import { getEmpresa, getHistorialEmpresa, getLegajoEmpresa } from "@/lib/data/empresas";
 import { ESTADO_EMPRESA } from "@/lib/domain/etiquetas";
-import { diasHasta, formatFecha } from "@/lib/domain/formato";
+import { diasHasta, formatFecha, hoyISO } from "@/lib/domain/formato";
+import { constanciaVigente, puedeFirmarConMatricula, situacionMatricula } from "@/lib/domain/matricula";
 import { rutaNuevaInspeccion } from "../../_components/rutas";
 import { TabsUrl, type PestanaUrl } from "../../_components/tabs-url";
 import { Actividades, IconoObservaciones } from "../_components/celdas";
@@ -68,6 +69,12 @@ export default async function LegajoEmpresaPage({ params, searchParams }: Props)
   const archivoNoDisponible = sp.archivo === "no-disponible";
 
   const tecnicosPendientes = legajo.tecnicos.filter((t) => t.estado === "pendiente").length;
+  const hoy = hoyISO();
+  const sinMatricula = legajo.tecnicos.filter(
+    (t) =>
+      t.estado === "aprobado" &&
+      !puedeFirmarConMatricula(situacionMatricula(constanciaVigente(legajo.documentos, t.id)?.vence, hoy)),
+  ).length;
   const memoriasPendientes = legajo.memorias.filter((m) => m.estado === "propuesto").length;
   const documentosPendientes = legajo.documentos.filter((d) => d.estado === "pendiente").length;
   const tramitesPendientes = legajo.tramites.filter((t) => t.estado === "presentado").length;
@@ -209,7 +216,13 @@ export default async function LegajoEmpresaPage({ params, searchParams }: Props)
             value={empresa.tecnicos_aprobados ?? 0}
             icon={UsersRound}
             tone={(empresa.tecnicos_aprobados ?? 0) > 0 ? "azul" : "rojo"}
-            hint={tecnicosPendientes > 0 ? `${tecnicosPendientes} pendiente${tecnicosPendientes === 1 ? "" : "s"} de aprobación` : "Aprobados para firmar"}
+            hint={
+              sinMatricula > 0
+                ? `${sinMatricula} sin matrícula vigente: no ${sinMatricula === 1 ? "puede" : "pueden"} firmar`
+                : tecnicosPendientes > 0
+                  ? `${tecnicosPendientes} pendiente${tecnicosPendientes === 1 ? "" : "s"} de aprobación`
+                  : "Aprobados y con matrícula al día"
+            }
           />
           <StatCard
             label="Productos aprobados"

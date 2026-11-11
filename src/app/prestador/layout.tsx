@@ -21,7 +21,7 @@ export default async function PrestadorLayout({ children }: LayoutProps<"/presta
       supabase
         .from("v_alertas")
         .select("tipo", { count: "exact", head: true })
-        .in("tipo", ["declaracion_observada", "habilitacion_por_vencer", "documento_por_vencer", "notificacion_vencida"]),
+        .in("tipo", ["declaracion_observada", "habilitacion_por_vencer", "documento_por_vencer", "notificacion_vencida", "matricula_asesor"]),
     ]);
     alertas = Math.max(0, (avisos ?? 0) - (leidos ?? 0)) + (pendientes ?? 0);
   }
