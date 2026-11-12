@@ -116,6 +116,8 @@ function aEditable(c: CertificadoPlanilla, establecimiento: { nombre: string; do
     tecnicoId: c.tecnicoId ?? "",
     tecnicoNombre: c.tecnicoNombre,
     laboratorio: c.laboratorio ?? "",
+    plaga: c.plagaObjetivo ?? "",
+    metodo: c.metodoAplicacion ?? "",
     analisisBacteriologico: c.analisisBacteriologico,
     analisisFisicoquimico: c.analisisFisicoquimico,
     productos: c.productos.map((p) => ({

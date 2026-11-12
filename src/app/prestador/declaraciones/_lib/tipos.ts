@@ -68,6 +68,9 @@ export type ServicioEditable = {
   /** Nombre del asesor asignado (por si ya no figura entre los aprobados). */
   tecnicoNombre: string | null;
   laboratorio: string;
+  /** Prescripción de la receta domisanitaria (fumigación). */
+  plaga: string;
+  metodo: string;
   analisisBacteriologico: string | null;
   analisisFisicoquimico: string | null;
   productos: ProductoCargado[];

@@ -1,17 +1,20 @@
-import { qrSvg, urlVerificacion } from "@/lib/qr";
+import { qrSvg, urlReceta, urlVerificacion } from "@/lib/qr";
 import { cn } from "@/lib/utils";
 
-/** QR de verificación pública de un certificado (Server Component). */
+/** QR de verificación pública de un certificado o de una receta (Server Component). */
 export async function CodigoQR({
   codigo,
   tamanio = 112,
   className,
+  receta = false,
 }: {
   codigo: string;
   tamanio?: number;
   className?: string;
+  /** Apunta a la verificación de la receta en lugar de la del certificado. */
+  receta?: boolean;
 }) {
-  const svg = await qrSvg(urlVerificacion(codigo));
+  const svg = await qrSvg(receta ? urlReceta(codigo) : urlVerificacion(codigo));
   return (
     <div
       role="img"

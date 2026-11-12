@@ -89,6 +89,8 @@ const esquemaServicio = z.object({
     .string({ error: "Indicá la fecha y hora del servicio." })
     .regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/, "Indicá la fecha y hora del servicio."),
   tecnico_id: z.guid("Elegí el asesor técnico que firma el certificado."),
+  plaga_objetivo: textoOpcional(160, "La plaga objetivo es demasiado larga."),
+  metodo_aplicacion: textoOpcional(160, "El método de aplicación es demasiado largo."),
   laboratorio: textoOpcional(150, "El nombre del laboratorio es demasiado largo."),
   analisis_bacteriologico_path: textoOpcional(500, "Archivo inválido."),
   analisis_fisicoquimico_path: textoOpcional(500, "Archivo inválido."),
@@ -140,6 +142,9 @@ export async function guardarServicio(_prev: EstadoAccion, formData: FormData): 
   // Reglas que dependen del tipo de servicio y de la fecha.
   const errores: Errores = {};
   if (tipo === "fumigacion" && d.superficie_m2 === undefined) agregar(errores, "superficie_m2", "Indicá la superficie tratada en m².");
+  // Prescripción técnica de la receta domisanitaria (la firma el asesor).
+  if (tipo === "fumigacion" && !d.plaga_objetivo) agregar(errores, "plaga_objetivo", "Indicá la plaga a controlar.");
+  if (tipo === "fumigacion" && !d.metodo_aplicacion) agregar(errores, "metodo_aplicacion", "Indicá el método de aplicación.");
   if (tipo === "tanque" && d.capacidad_litros === undefined) agregar(errores, "capacidad_litros", "Indicá la capacidad del tanque en litros.");
   if (tipo === "fumigacion" && d.productos.length === 0) agregar(errores, "productos", "Agregá al menos un producto aplicado.");
   const idsProductos = d.productos.map((p) => p.productoId);
@@ -254,6 +259,8 @@ export async function guardarServicio(_prev: EstadoAccion, formData: FormData): 
     capacidad_litros: tipo === "tanque" ? (d.capacidad_litros ?? null) : null,
     fecha_servicio: fechaIso,
     tecnico_id: d.tecnico_id,
+    plaga_objetivo: tipo === "fumigacion" ? (d.plaga_objetivo ?? null) : null,
+    metodo_aplicacion: tipo === "fumigacion" ? (d.metodo_aplicacion ?? null) : null,
     laboratorio: tipo === "tanque" ? (d.laboratorio ?? null) : null,
     analisis_bacteriologico_path: tipo === "tanque" ? (d.analisis_bacteriologico_path ?? null) : null,
     analisis_fisicoquimico_path: tipo === "tanque" ? (d.analisis_fisicoquimico_path ?? null) : null,

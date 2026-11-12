@@ -12,6 +12,12 @@ export const APP = {
     domicilio: "San Martín N.º 1009, San Miguel de Tucumán",
     horario: "Lunes a viernes de 8:00 a 13:00",
   },
+  /** Centro toxicológico que figura en la receta domisanitaria (bioseguridad). */
+  centroToxicologico: {
+    nombre: "Centro Nacional de Intoxicaciones · Hospital Posadas",
+    telefono: "0800-333-0160",
+    lugar: "El Palomar, Buenos Aires (atención las 24 h)",
+  },
   enlaces: {
     /** Listado oficial de ANMAT: desinfestantes y plaguicidas de venta profesional. */
     anmatProductos:

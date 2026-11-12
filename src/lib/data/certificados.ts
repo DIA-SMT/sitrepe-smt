@@ -607,6 +607,7 @@ export async function contarVigencias(empresaId: string): Promise<ConteoVigencia
 
 export type ProductoDetalle = {
   id: string;
+  productoId: string;
   cantidad: number;
   unidad: string;
   nombre: string;
@@ -615,7 +616,11 @@ export type ProductoDetalle = {
   clase: Enums<"clase_producto">;
   organismo: Enums<"organismo_registro">;
   registro: string;
+  formulacion: string | null;
   plazoReingresoHoras: number;
+  /** Lote y vencimiento del producto comprado con la receta. */
+  lote: string | null;
+  loteVence: string | null;
 };
 
 export type CertificadoDetalle = {
@@ -721,7 +726,7 @@ export const getCertificadoDetalle = cache(async (id: string): Promise<Certifica
     const { data, error: e } = await supabase
       .from("certificado_productos")
       .select(
-        "id, cantidad, unidad, producto:productos(nombre_comercial, principio_activo, concentracion, clase, organismo, registro_numero, plazo_reingreso_horas)",
+        "id, producto_id, cantidad, unidad, lote, lote_vence, producto:productos(nombre_comercial, principio_activo, concentracion, clase, organismo, registro_numero, formulacion, plazo_reingreso_horas)",
       )
       .eq("certificado_id", certificado.id);
     if (e) throw new Error(mensajeError(e));
@@ -732,6 +737,7 @@ export const getCertificadoDetalle = cache(async (id: string): Promise<Certifica
         return [
           {
             id: fila.id,
+            productoId: fila.producto_id,
             cantidad: fila.cantidad,
             unidad: fila.unidad,
             nombre: p.nombre_comercial,
@@ -740,7 +746,10 @@ export const getCertificadoDetalle = cache(async (id: string): Promise<Certifica
             clase: p.clase,
             organismo: p.organismo,
             registro: p.registro_numero,
+            formulacion: p.formulacion,
             plazoReingresoHoras: p.plazo_reingreso_horas,
+            lote: fila.lote,
+            loteVence: fila.lote_vence,
           },
         ];
       })

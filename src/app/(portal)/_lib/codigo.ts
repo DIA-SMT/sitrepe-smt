@@ -18,7 +18,7 @@ export const EJEMPLO_SELLO = "SA-2026-000123";
  */
 export function normalizarCodigo(valor: string): string {
   let texto = valor.trim();
-  const url = texto.match(/\/verificar\/([^/?#\s]+)/i);
+  const url = texto.match(/\/(?:verificar|receta)\/([^/?#\s]+)/i);
   if (url) {
     try {
       texto = decodeURIComponent(url[1]);

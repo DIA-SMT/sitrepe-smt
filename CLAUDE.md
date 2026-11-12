@@ -46,6 +46,11 @@ variables, funciones y archivos en español (como el resto del código). Fechas 
   `vence` (DDJJ; la Dirección puede rechazarla). `firmar_certificados` exige una no rechazada y vigente
   (`matricula_vigente_hasta()`); `v_matriculas` y la alerta `matricula_asesor` (7 días antes) muestran la situación.
   En la UI, `src/lib/domain/matricula.ts`.
+- Receta domisanitaria (Anexo I): es el certificado de fumigación con `plaga_objetivo` y `metodo_aplicacion`;
+  `firmar_certificados` los exige y asigna `receta_numero` (correlativo por empresa; se muestra con
+  `formatNumeroReceta()` de `src/lib/domain/receta.ts`). `registrar_lote(p_certificado, p_producto, p_lote, p_vence)`
+  guarda lote y vencimiento sin anular la firma. Pública: `verificar_receta(p_codigo)` (QR en `/receta/[codigo]`).
+  Impresión por triplicado en `/imprimir/receta/[id]`.
 - El vencimiento de los certificados (`fecha_vencimiento`) lo calcula la base. Para vista previa en la UI usar
   `calcularVencimiento()` de `src/lib/domain/vencimiento.ts`.
 - Si un módulo necesita un cambio de esquema, NO editar migraciones existentes: describirlo en el reporte final.

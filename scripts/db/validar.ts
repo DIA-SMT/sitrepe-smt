@@ -202,8 +202,10 @@ async function main() {
       afirmar(/^DJ-\d{4}-\d{6}$/.test(d.codigo), `código ${d.codigo}`);
       const c = await uno<{ id: string; fecha_vencimiento: string; codigo_verificacion: string }>(
         tx,
-        `insert into certificados (empresa_id, declaracion_id, numero, cliente, domicilio, rubro_id, superficie_m2, fecha_servicio, tecnico_id)
-         values ($1, $2, 'T-001', 'Comedor de prueba', 'San Martín 1009', $3, 120, now() + interval '30 hours', $4)
+        `insert into certificados (empresa_id, declaracion_id, numero, cliente, domicilio, rubro_id, superficie_m2, fecha_servicio, tecnico_id,
+           plaga_objetivo, metodo_aplicacion)
+         values ($1, $2, 'T-001', 'Comedor de prueba', 'San Martín 1009', $3, 120, now() + interval '30 hours', $4,
+           'Cucarachas', 'Gel en puntos críticos')
          returning id, fecha_vencimiento::text, codigo_verificacion`,
         [empresa1.id, declaracion, rubro.id, tecnico1.id],
       );
@@ -296,6 +298,66 @@ async function main() {
     await comoUsuario(db, usuarioTecnico, (tx) => tx.query(`select firmar_certificados($1)`, [[certificado]]));
   });
 
+  await prueba("receta: se emite al firmar y el comercio la verifica por QR", async () => {
+    const c = await uno<{ receta_numero: number | null; receta_codigo: string }>(
+      db,
+      `select receta_numero, receta_codigo from certificados where id = $1`,
+      [certificado],
+    );
+    afirmar(c.receta_numero !== null && c.receta_numero > 0, "la receta debería tener número");
+    const r = await comoUsuario(db, null, (tx) =>
+      uno<{ r: { estado: string; numero: string; plaga_objetivo: string } }>(tx, `select verificar_receta($1) as r`, [
+        c.receta_codigo.toLowerCase(),
+      ]),
+    );
+    afirmar(r.r?.estado === "valida" && r.r.plaga_objetivo === "Cucarachas", JSON.stringify(r.r));
+    afirmar(/^\d{4}-\d{8}$/.test(r.r.numero), r.r.numero);
+  });
+
+  await prueba("receta: registrar el lote no anula la firma", async () => {
+    const p = await uno<{ producto_id: string }>(db, `select producto_id from certificado_productos where certificado_id = $1`, [
+      certificado,
+    ]);
+    await debeFallar(
+      () =>
+        comoUsuario(db, usuarioEmpresa, (tx) =>
+          tx.query(`select registrar_lote($1, $2, 'L-1', public.hoy() - 30)`, [certificado, p.producto_id]),
+        ),
+      "vence antes",
+    );
+    await comoUsuario(db, usuarioEmpresa, (tx) =>
+      tx.query(`select registrar_lote($1, $2, 'L-2026-114', public.hoy() + 365)`, [certificado, p.producto_id]),
+    );
+    const c = await uno<{ firma_hash: string | null; lote: string }>(
+      db,
+      `select c.firma_hash, cp.lote from certificados c join certificado_productos cp on cp.certificado_id = c.id where c.id = $1`,
+      [certificado],
+    );
+    afirmar(c.firma_hash !== null && c.lote === "L-2026-114", JSON.stringify(c));
+    await debeFallar(
+      () =>
+        comoUsuario(db, null, (tx) => tx.query(`select registrar_lote($1, $2, 'X', null)`, [certificado, p.producto_id])),
+      "permission denied",
+    );
+  });
+
+  await prueba("receta: sin plaga objetivo no se puede firmar", async () => {
+    await comoUsuario(db, usuarioEmpresa, (tx) =>
+      tx.query(`update certificados set plaga_objetivo = null where id = $1`, [certificado]),
+    );
+    await debeFallar(
+      () => comoUsuario(db, usuarioTecnico, (tx) => tx.query(`select firmar_certificados($1)`, [[certificado]])),
+      "plaga objetivo",
+    );
+    await comoUsuario(db, usuarioEmpresa, (tx) =>
+      tx.query(`update certificados set plaga_objetivo = 'Cucarachas' where id = $1`, [certificado]),
+    );
+    const antes = await uno<{ n: number }>(db, `select receta_numero as n from certificados where id = $1`, [certificado]);
+    await comoUsuario(db, usuarioTecnico, (tx) => tx.query(`select firmar_certificados($1)`, [[certificado]]));
+    const despues = await uno<{ n: number }>(db, `select receta_numero as n from certificados where id = $1`, [certificado]);
+    afirmar(antes.n === despues.n, "al volver a firmar se conserva el número de receta");
+  });
+
   await prueba("no se pueden entregar más envases que los generados", async () => {
     await debeFallar(
       () =>
@@ -314,8 +376,9 @@ async function main() {
       const d = await uno<{ id: string }>(tx, `insert into declaraciones (empresa_id) values ($1) returning id`, [empresa1.id]);
       const c = await uno<{ id: string }>(
         tx,
-        `insert into certificados (empresa_id, declaracion_id, numero, cliente, domicilio, rubro_id, superficie_m2, fecha_servicio, tecnico_id)
-         values ($1, $2, 'T-002', 'Cliente', 'Calle 2', $3, 50, now() + interval '5 hours', $4) returning id`,
+        `insert into certificados (empresa_id, declaracion_id, numero, cliente, domicilio, rubro_id, superficie_m2, fecha_servicio, tecnico_id,
+           plaga_objetivo, metodo_aplicacion)
+         values ($1, $2, 'T-002', 'Cliente', 'Calle 2', $3, 50, now() + interval '5 hours', $4, 'Roedores', 'Cebos') returning id`,
         [empresa1.id, d.id, rubro.id, tecnico1.id],
       );
       await tx.query(`insert into certificado_productos (certificado_id, producto_id, cantidad) values ($1, $2, 1)`, [

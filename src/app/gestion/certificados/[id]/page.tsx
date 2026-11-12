@@ -35,6 +35,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { EstadoBadge } from "@/components/shared/estado-badge";
 import { KeyValue } from "@/components/shared/key-value";
 import { PageHeader } from "@/components/shared/page-header";
+import { SeccionReceta } from "@/components/receta/seccion-receta";
 import { SectionCard } from "@/components/shared/section-card";
 import { Timeline, type TimelineItem } from "@/components/shared/timeline";
 import { Alert } from "@/components/ui/alert";
@@ -50,6 +51,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { TBody, TD, TH, THead, TR, Table } from "@/components/ui/table";
 import { requerirStaff } from "@/lib/auth";
+import { getCertificadoDetalle as getDetalleReceta } from "@/lib/data/certificados";
 import { type DetalleCertificado, getCertificadoDetalle, getCertificadoVista, puedeControlar } from "@/lib/data/control";
 import {
   ESTADO_CERTIFICADO,
@@ -95,7 +97,7 @@ export default async function CertificadoDetallePage({ params }: Props) {
   const sesion = await requerirStaff();
   const { id } = await params;
   const esAdmin = sesion.perfil.rol === "admin";
-  const detalle = await getCertificadoDetalle(id, { conAuditoria: esAdmin });
+  const [detalle, detalleReceta] = await Promise.all([getCertificadoDetalle(id, { conAuditoria: esAdmin }), getDetalleReceta(id)]);
   if (!detalle) notFound();
 
   const { certificado: c, declaracion, pago, establecimiento, productos, inspecciones } = detalle;
@@ -365,6 +367,8 @@ export default async function CertificadoDetallePage({ params }: Props) {
                 </Alert>
               )}
             </SectionCard>
+
+            {detalleReceta ? <SeccionReceta detalle={detalleReceta} /> : null}
 
             {detalle.auditoria ? <SeccionAuditoria detalle={detalle} /> : null}
           </div>

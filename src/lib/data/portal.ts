@@ -207,6 +207,64 @@ export const verificarCertificado = cache(async (codigo: string): Promise<Verifi
 });
 
 // -----------------------------------------------------------------------------
+// Verificación pública de recetas domisanitarias (verificar_receta): la usa el comercio
+// que vende el producto, escaneando el QR de la receta.
+// -----------------------------------------------------------------------------
+const esquemaReceta = z.object({
+  numero: z.string(),
+  codigo: z.string(),
+  estado: z.enum(["valida", "sin_firma", "anulada"]),
+  emitida_at: texto,
+  fecha_servicio: z.string(),
+  plaga_objetivo: texto,
+  metodo_aplicacion: texto,
+  plazo_reingreso_horas: numeroNulo,
+  cliente: z.string(),
+  domicilio: z.string(),
+  rubro: texto,
+  empresa: z.object({
+    id: z.string(),
+    nombre: z.string(),
+    cuit: texto,
+    numero_registro: numeroNulo,
+    resolucion_dsa: texto,
+    habilitada: z.boolean().catch(false),
+  }),
+  tecnico: z
+    .object({ nombre: texto, titulo: texto, matricula: texto, matricula_vigente: z.boolean().catch(false) })
+    .catch({ nombre: null, titulo: null, matricula: null, matricula_vigente: false }),
+  productos: z
+    .array(
+      z.object({
+        nombre: z.string(),
+        principio_activo: texto,
+        concentracion: texto,
+        formulacion: texto,
+        organismo: z.enum(E.organismo_registro).nullable().catch(null),
+        registro: texto,
+        cantidad: numeroNulo,
+        unidad: texto,
+        lote: texto,
+        lote_vence: texto,
+      }),
+    )
+    .catch([]),
+});
+
+export type VerificacionReceta = z.infer<typeof esquemaReceta>;
+
+/** Verifica una receta por el código de su QR. Devuelve null si no existe o todavía no fue emitida. */
+export const verificarReceta = cache(async (codigo: string): Promise<VerificacionReceta | null> => {
+  const normalizado = codigo.trim().toUpperCase();
+  if (!CODIGO_VALIDO.test(normalizado)) return null;
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("verificar_receta", { p_codigo: normalizado });
+  if (error) lanzar(error, "No se pudo verificar la receta");
+  if (data === null) return null;
+  return parsear(esquemaReceta, data, "Receta");
+});
+
+// -----------------------------------------------------------------------------
 // Noticias (tabla noticias: anon ve solo las publicadas)
 // -----------------------------------------------------------------------------
 const COLUMNAS_NOTICIA = "id, slug, titulo, resumen, categoria, imagen_url, publicada_at, created_at" as const;

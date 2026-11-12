@@ -497,5 +497,38 @@ from public.tecnicos t
 join public.empresas e on e.id = t.empresa_id
 where t.estado = 'aprobado' and e.numero_registro is not null and e.numero_registro % 11 <> 0;
 
+-- Recetas: plaga objetivo y método de los servicios de fumigación, número de las ya firmadas y lote de los timbrados.
+-- Sin el trigger de validación: completar la prescripción no debe anular firmas de la carga histórica.
+alter table public.certificados disable trigger certificados_validar;
+with plagas (i, plaga, metodo) as (
+  values (0, 'Cucarachas', 'Gel en puntos críticos y pulverización residual'),
+         (1, 'Roedores', 'Cebos rodenticidas en estaciones de cebado'),
+         (2, 'Mosquitos (Aedes aegypti)', 'Nebulización en frío (ULV)'),
+         (3, 'Hormigas', 'Cebos en gel'),
+         (4, 'Moscas', 'Pulverización residual'),
+         (5, 'Pulgas y garrapatas', 'Pulverización'),
+         (6, 'Alacranes y arañas', 'Pulverización residual perimetral')
+)
+update public.certificados c
+set plaga_objetivo = p.plaga, metodo_aplicacion = p.metodo
+from plagas p
+where c.tipo = 'fumigacion' and c.plaga_objetivo is null and p.i = abs(hashtext(c.id::text)) % 7;
+
+update public.certificados c
+set receta_numero = s.n
+from (
+  select x.id, row_number() over (partition by x.empresa_id order by x.fecha_servicio, x.numero) as n
+  from public.certificados x
+  where x.tipo = 'fumigacion' and x.firma_hash is not null
+) s
+where c.id = s.id and c.receta_numero is null;
+alter table public.certificados enable trigger certificados_validar;
+
+update public.certificado_productos cp
+set lote = 'L' || to_char(c.fecha_servicio, 'YYMM') || '-' || lpad((abs(hashtext(cp.id::text)) % 9000 + 1000)::text, 4, '0'),
+    lote_vence = (c.fecha_servicio + interval '2 years')::date
+from public.certificados c
+where c.id = cp.certificado_id and c.estado = 'timbrado' and cp.lote is null;
+
 -- Sin auditoría de la carga de demostración.
 truncate public.auditoria;

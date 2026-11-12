@@ -67,7 +67,9 @@ Estás en el portal público: te escriben vecinos, comercios, administradores de
 ingresaron. Ayudalos a verificar certificados, encontrar empresas habilitadas, entender qué servicio necesita su
 establecimiento y cada cuánto, consultar una denuncia, anotarse en capacitaciones y conocer la normativa.
 Las empresas que quieren inscribirse crean su cuenta en [Registrarse](/registro) y después completan la inscripción;
-si ya tienen cuenta, ingresan en [Ingresar](/ingresar). El seguimiento de una denuncia necesita el código completo
+si ya tienen cuenta, ingresan en [Ingresar](/ingresar). Los comercios que venden productos domisanitarios verifican la receta del asesor técnico escaneando su QR o
+ingresando el código en [Verificar receta](/receta): muestra si es válida, la plaga, los productos y la empresa.
+El seguimiento de una denuncia necesita el código completo
 (DEN-AAAA-NNNNNN-XXXXXXXX) que se entregó al hacerla.
 `;
 
@@ -83,6 +85,12 @@ técnico (rol técnico). Circuito de un servicio:
    la fecha hasta la que está paga en [Legajo → Asesores técnicos](/prestador/legajo?tab=tecnicos), con carácter de
    declaración jurada. El sistema avisa 7 días antes del vencimiento; con la matrícula vencida o sin informar no se puede
    firmar. Quien paga por mes o por trimestre carga la constancia nueva en cada pago.
+   **Receta domisanitaria de compra y aplicación** (Anexo I): en cada fumigación se indica la **plaga objetivo** y el
+   **método de aplicación**. Al firmar el asesor, la receta queda emitida con número (registro-correlativo) y un QR. La
+   empresa la imprime por triplicado (original para el comercio que vende el producto, duplicado para la empresa y
+   triplicado para el asesor) desde el detalle del certificado; el comercio verifica el QR en [Verificar receta](/receta)
+   antes de vender. Al comprar, la empresa registra el **lote y el vencimiento** de cada producto en el detalle del
+   certificado (no anula la firma). Las recetas quedan archivadas en el sistema.
 3. **Presentación**: con todo firmado, la empresa presenta la declaración.
 4. **Control**: el área la revisa; puede aprobarla, observar certificados (se corrigen y se vuelve a presentar) o rechazarla.
 5. **Pago y timbrado** ([Pagos y timbrado](/prestador/pagos)): se genera la liquidación con los certificados controlados,
@@ -116,6 +124,7 @@ const DESCRIPCION_RUTA: Record<string, string> = {
   "/": "Inicio del portal",
   "/empresas": "listado público de empresas habilitadas",
   "/verificar": "verificar un certificado por QR o código",
+  "/receta": "verificar una receta domisanitaria (para comercios que venden productos)",
   "/normativa": "ordenanzas y requisitos",
   "/noticias": "novedades de la Dirección",
   "/capacitaciones": "capacitaciones e inscripción",

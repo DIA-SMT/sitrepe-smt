@@ -383,6 +383,8 @@ export type Database = {
           producto_id: string
           cantidad: number
           unidad: string
+          lote: string | null
+          lote_vence: string | null
         }
         Insert: {
           id?: string
@@ -390,6 +392,8 @@ export type Database = {
           producto_id: string
           cantidad: number
           unidad?: string
+          lote?: string | null
+          lote_vence?: string | null
         }
         Update: {
           id?: string
@@ -397,6 +401,8 @@ export type Database = {
           producto_id?: string
           cantidad?: number
           unidad?: string
+          lote?: string | null
+          lote_vence?: string | null
         }
         Relationships: [
           {
@@ -450,6 +456,10 @@ export type Database = {
           created_by: string | null
           created_at: string
           updated_at: string
+          plaga_objetivo: string | null
+          metodo_aplicacion: string | null
+          receta_numero: number | null
+          receta_codigo: string
         }
         Insert: {
           id?: string
@@ -485,6 +495,10 @@ export type Database = {
           created_by?: string | null
           created_at?: string
           updated_at?: string
+          plaga_objetivo?: string | null
+          metodo_aplicacion?: string | null
+          receta_numero?: number | null
+          receta_codigo?: string
         }
         Update: {
           id?: string
@@ -520,6 +534,10 @@ export type Database = {
           created_by?: string | null
           created_at?: string
           updated_at?: string
+          plaga_objetivo?: string | null
+          metodo_aplicacion?: string | null
+          receta_numero?: number | null
+          receta_codigo?: string
         }
         Relationships: [
           {
@@ -1985,6 +2003,10 @@ export type Database = {
           created_by: string | null
           created_at: string | null
           updated_at: string | null
+          plaga_objetivo: string | null
+          metodo_aplicacion: string | null
+          receta_numero: number | null
+          receta_codigo: string | null
           empresa_nombre: string | null
           empresa_cuit: string | null
           empresa_numero_registro: number | null
@@ -2615,6 +2637,15 @@ export type Database = {
         }
         Returns: undefined
       }
+      registrar_lote: {
+        Args: {
+          p_certificado: string
+          p_producto: string
+          p_lote: string
+          p_vence: string
+        }
+        Returns: undefined
+      }
       resolver_tramite: {
         Args: {
           p_tramite: string
@@ -2689,6 +2720,12 @@ export type Database = {
           p_observaciones?: string
         }
         Returns: undefined
+      }
+      verificar_receta: {
+        Args: {
+          p_codigo: string
+        }
+        Returns: Json
       }
     }
     Enums: {

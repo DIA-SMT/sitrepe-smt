@@ -75,10 +75,15 @@ function agrupar(
       fecha: formatFechaHora(c.fechaServicio),
       cuando: horas !== null ? describirAntelacion(horas) : null,
       medida: c.tipo === "tanque" ? formatLitros(c.capacidadLitros) : formatSuperficie(c.superficieM2),
-      productos: c.productos.map((p) => `${p.nombre} ${formatNumero(p.cantidad)} ${p.unidad}`),
+      productos: [
+        ...(c.plagaObjetivo ? [`Plaga: ${c.plagaObjetivo}${c.metodoAplicacion ? ` (${c.metodoAplicacion})` : ""}`] : []),
+        ...c.productos.map((p) => `${p.nombre} ${formatNumero(p.cantidad)} ${p.unidad}`),
+      ],
       observacion: c.estado === "observado" ? c.observaciones : null,
       alerta:
-        fueraDePlazo && c.tipo === "fumigacion"
+        c.tipo === "fumigacion" && (!c.plagaObjetivo || !c.metodoAplicacion)
+          ? "Falta la plaga objetivo o el método de aplicación de la receta: la empresa tiene que completarlos antes de que lo firmes."
+          : fueraDePlazo && c.tipo === "fumigacion"
           ? `Fuera del plazo de ${antelacion.minHoras} a ${antelacion.maxHoras} h: la empresa tiene que corregir la fecha antes de presentar.`
           : fueraDePlazo
             ? "La limpieza figura con fecha futura: se declara una vez realizada."

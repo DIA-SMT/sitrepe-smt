@@ -134,6 +134,9 @@ export type ProductoAplicado = {
   registro: string | null;
   cantidad: number;
   unidad: string;
+  /** Lote y vencimiento del producto comprado con la receta. */
+  lote: string | null;
+  loteVence: string | null;
 };
 
 function esObjeto(valor: Json | undefined): valor is { [clave: string]: Json | undefined } {
@@ -159,6 +162,8 @@ export function parsearProductos(valor: Json | null): ProductoAplicado[] {
         registro: texto(item.registro),
         cantidad: Number.isFinite(cantidad) ? cantidad : 0,
         unidad: texto(item.unidad) ?? "ml",
+        lote: texto(item.lote),
+        loteVence: texto(item.lote_vence),
       },
     ];
   });
@@ -188,6 +193,12 @@ export type CertificadoPlanilla = {
   tecnicoId: string | null;
   tecnicoNombre: string | null;
   tecnicoTitulo: string | null;
+  plagaObjetivo: string | null;
+  metodoAplicacion: string | null;
+  /** Receta emitida (al firmar el asesor): número correlativo y código del QR. */
+  recetaNumero: number | null;
+  recetaCodigo: string | null;
+  empresaNumeroRegistro: number | null;
   laboratorio: string | null;
   analisisBacteriologico: string | null;
   analisisFisicoquimico: string | null;
@@ -228,6 +239,11 @@ function aPlanilla(c: Views<"v_certificados">): CertificadoPlanilla | null {
     tecnicoId: c.tecnico_id,
     tecnicoNombre: c.tecnico_nombre,
     tecnicoTitulo: c.tecnico_titulo,
+    plagaObjetivo: c.plaga_objetivo,
+    metodoAplicacion: c.metodo_aplicacion,
+    recetaNumero: c.receta_numero,
+    recetaCodigo: c.receta_codigo,
+    empresaNumeroRegistro: c.empresa_numero_registro,
     laboratorio: c.laboratorio,
     analisisBacteriologico: c.analisis_bacteriologico_path,
     analisisFisicoquimico: c.analisis_fisicoquimico_path,

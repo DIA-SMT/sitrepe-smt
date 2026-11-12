@@ -57,6 +57,7 @@ import type { EstablecimientoOpcion, ProductoCargado, ProductoOpcion, ServicioEd
 import { guardarServicio } from "../actions";
 import { BuscadorEstablecimiento } from "./buscador-establecimiento";
 import { type DatosPlanilla, usePlanilla } from "./contexto-planilla";
+import { METODOS_SUGERIDOS, PLAGAS_SUGERIDAS } from "@/lib/domain/receta";
 import { OpcionesRubro } from "./opciones-rubro";
 
 type Disparador = "boton" | "icono" | "vacio";
@@ -75,6 +76,8 @@ type Valores = {
   capacidad: string;
   tecnicoId: string;
   laboratorio: string;
+  plaga: string;
+  metodo: string;
   productos: FilaProducto[];
 };
 
@@ -143,6 +146,8 @@ function valoresIniciales(servicio: ServicioEditable | undefined, p: DatosPlanil
       capacidad: servicio.capacidad,
       tecnicoId: servicio.tecnicoId,
       laboratorio: servicio.laboratorio,
+      plaga: servicio.plaga,
+      metodo: servicio.metodo,
       productos: servicio.productos.map((prod, i) => ({ ...prod, clave: `inicial-${i}` })),
     };
   }
@@ -159,6 +164,8 @@ function valoresIniciales(servicio: ServicioEditable | undefined, p: DatosPlanil
     capacidad: "",
     tecnicoId: representante?.id ?? "",
     laboratorio: "",
+    plaga: "",
+    metodo: "",
     productos: p.tipo === "fumigacion" ? [{ clave: "inicial-0", productoId: "", cantidad: "", unidad: "ml" }] : [],
   };
 }
@@ -192,6 +199,8 @@ function validar(v: Valores, p: DatosPlanilla, ahora: number): Record<string, st
   if (v.domicilio.trim().length < 3) e.domicilio = "Indicá el domicilio donde se realiza el servicio.";
   if (!v.rubroId) e.rubro_id = "Elegí el rubro del Anexo: define el vencimiento del certificado.";
   if (p.tipo === "fumigacion" && !positivo(v.superficie)) e.superficie_m2 = "Indicá la superficie tratada en m².";
+  if (p.tipo === "fumigacion" && !v.plaga.trim()) e.plaga_objetivo = "Indicá la plaga a controlar.";
+  if (p.tipo === "fumigacion" && !v.metodo.trim()) e.metodo_aplicacion = "Indicá el método de aplicación.";
   if (p.tipo === "tanque" && !positivo(v.capacidad)) e.capacidad_litros = "Indicá la capacidad del tanque en litros.";
   if (!v.tecnicoId) e.tecnico_id = "Elegí el asesor técnico que firma el certificado.";
   else if (!p.tecnicos.some((t) => t.id === v.tecnicoId)) {
@@ -531,6 +540,46 @@ function CuerpoFormulario({ servicio, onListo }: { servicio?: ServicioEditable; 
                 trailing="m²"
               />
             </Field>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field
+                htmlFor={`${id}-plaga`}
+                label="Plaga objetivo"
+                required
+                hint="Figura en la receta que firma el asesor."
+                error={error("plaga_objetivo")}
+              >
+                <Input
+                  id={`${id}-plaga`}
+                  name="plaga_objetivo"
+                  list={`${id}-plagas`}
+                  maxLength={160}
+                  placeholder="Ej.: Cucarachas"
+                  value={v.plaga}
+                  onChange={(e) => cambiar("plaga", e.target.value, "plaga_objetivo")}
+                />
+              </Field>
+              <Field htmlFor={`${id}-metodo`} label="Método de aplicación" required error={error("metodo_aplicacion")}>
+                <Input
+                  id={`${id}-metodo`}
+                  name="metodo_aplicacion"
+                  list={`${id}-metodos`}
+                  maxLength={160}
+                  placeholder="Ej.: Gel en puntos críticos"
+                  value={v.metodo}
+                  onChange={(e) => cambiar("metodo", e.target.value, "metodo_aplicacion")}
+                />
+              </Field>
+              <datalist id={`${id}-plagas`}>
+                {PLAGAS_SUGERIDAS.map((plaga) => (
+                  <option key={plaga} value={plaga} />
+                ))}
+              </datalist>
+              <datalist id={`${id}-metodos`}>
+                {METODOS_SUGERIDOS.map((metodo) => (
+                  <option key={metodo} value={metodo} />
+                ))}
+              </datalist>
+            </div>
             <FilasProductos
               id={id}
               filas={v.productos}

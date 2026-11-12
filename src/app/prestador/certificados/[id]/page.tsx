@@ -17,6 +17,7 @@ import {
   SprayCan,
   Stamp,
 } from "lucide-react";
+import { SeccionReceta } from "@/components/receta/seccion-receta";
 import { CodigoQR } from "@/components/shared/codigo-qr";
 import { EmptyState } from "@/components/shared/empty-state";
 import { EstadoBadge } from "@/components/shared/estado-badge";
@@ -46,6 +47,7 @@ import { urlVerificacion } from "@/lib/qr";
 import { urlFirmada } from "@/lib/storage";
 import { SelloPendiente, SelloTimbrado } from "@/app/imprimir/certificado/_components/sello-timbrado";
 import { CopiarTexto } from "../../_components/copiar-texto";
+import { FormLote } from "./_components/form-lote";
 import { PanelEstado } from "./_components/panel-estado";
 import { Recorrido } from "./_components/recorrido";
 
@@ -275,6 +277,8 @@ export default async function CertificadoDetallePage({ params }: Props) {
               </Table>
             )}
           </SectionCard>
+
+          <SeccionReceta detalle={detalle} accionLote={(p) => <FormLote certificadoId={c.id} producto={p} />} />
 
           {esTanque ? (
             <SectionCard

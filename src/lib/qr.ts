@@ -7,6 +7,11 @@ export function urlVerificacion(codigo: string): string {
   return `${APP.siteUrl.replace(/\/$/, "")}/verificar/${encodeURIComponent(codigo)}`;
 }
 
+/** URL pública de verificación de una receta domisanitaria (la escanea el comercio que vende el producto). */
+export function urlReceta(codigo: string): string {
+  return `${APP.siteUrl.replace(/\/$/, "")}/receta/${encodeURIComponent(codigo)}`;
+}
+
 /** Código QR como SVG (string) listo para inyectar con dangerouslySetInnerHTML. */
 export async function qrSvg(texto: string, opciones: { color?: string; margen?: number } = {}): Promise<string> {
   return QRCode.toString(texto, {
